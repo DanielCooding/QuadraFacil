@@ -22,4 +22,14 @@ class InicializacaoTest {
             assertTrue(response.body().contains("em execução"));
         }
     }
+
+    @Test void preservaRespostaDemonstrativaDeQuadras() throws Exception {
+        try (var client = HttpClient.newHttpClient()) {
+            var request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/quadras")).build();
+            var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            assertEquals(200, response.statusCode());
+            assertTrue(response.body().contains("Quadra Society"));
+            assertTrue(response.body().contains("proprietarioId"));
+        }
+    }
 }

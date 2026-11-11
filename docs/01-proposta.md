@@ -96,7 +96,7 @@ Como responsável pelas quadras, quero cadastrar quadras, definir o funcionament
 - Uma reserva confirmada pode ser cancelada enquanto ainda não começou. O cancelamento preserva o histórico e libera o horário.
 - Os horários usam o fuso de Brasília (`America/Sao_Paulo`).
 
-> Duração mínima, incrementos de 30 minutos e a política de cancelamento são a proposta atual e serão confirmados no contrato HTTP (issue B03) e na implementação do cancelamento (issue B11).
+> Duração, alinhamento de horários e cancelamento foram definidos em `docs/03-contratos-http.md` (B03). A implementação dessas regras continua nas tarefas B09–B11.
 
 **Tecnologias desta etapa:** Java 21, Spring Boot, Maven, Spring Web, Spring Data JPA, Bean Validation, H2 e JUnit. A API é testada com Bruno, Postman ou curl.
 
@@ -113,7 +113,7 @@ As issues #1 a #4 estão fechadas porque o **planejamento** foi concluído. Elas
 | #3 — História 03 | Administrar a agenda | Planejada |
 | #4 — MVP | Definição do escopo | Planejado |
 
-O que existe hoje: aplicação Spring Boot executável, modelo inicial em records, `GET /api/status` e `GET /api/quadras` com uma quadra fixa de exemplo. Ainda não há persistência, cadastros reais nem criação de reservas.
+O que existe hoje: aplicação Spring Boot, quatro entidades JPA, repositories, H2 configurado e DTOs validados. A persistência básica é testada diretamente pelos repositories; ainda não há cadastros ou reservas pela API. `GET /api/status` funciona e `GET /api/quadras` mantém a quadra fixa de exemplo até B04. Os contratos HTTP planejados estão em `docs/03-contratos-http.md`.
 
 ## 6. Requisitos futuros (fora da entrega acadêmica)
 
