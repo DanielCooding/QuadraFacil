@@ -1,6 +1,2 @@
-/**
- * Camada service de cliente. Os fluxos HTTP serão implementados nas próximas issues.
- * Controller traduz HTTP, Service aplica regras e DTO define entrada/saída.
- * Não expor entidades JPA diretamente nas respostas da API.
- */
+/** Camada service do cadastro e consulta de clientes (B06). */
 package br.com.quadrafacil.cliente.service;

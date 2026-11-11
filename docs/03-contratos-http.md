@@ -10,7 +10,7 @@ Vamos usar `/api` em todos os endpoints de negócio. Este documento define o que
 | `GET /api/quadras` | Implementado com consulta ao H2 (B04), incluindo quadras inativas |
 | `GET /` | Página simples de apresentação |
 
-B04/B05 implementam também `POST /api/quadras`, `GET /api/quadras/{id}`, `PUT /api/quadras/{id}` e `PATCH /api/quadras/{id}/situacao`, conforme as seções abaixo. A resposta não inclui mais `proprietarioId`. Clientes, funcionamento, reservas e agenda permanecem planejados. Há tratamento local de erros de quadras; B07 deverá padronizar os demais módulos.
+B04/B05 implementam também `POST /api/quadras`, `GET /api/quadras/{id}`, `PUT /api/quadras/{id}` e `PATCH /api/quadras/{id}/situacao`, conforme as seções abaixo. A resposta não inclui mais `proprietarioId`. B06 implementa `POST /api/clientes`, `GET /api/clientes` e `GET /api/clientes/{id}`. Funcionamento, reservas e agenda permanecem planejados. B07 fornece tratamento global de erros, usado por clientes, quadras e pelos próximos controllers.
 
 ## Convenções
 
@@ -141,7 +141,7 @@ Agenda retorna apenas CONFIRMADAS, ordenadas pelo início. Sem reservas: `reserv
 
 ## Erros — B07 e Services futuros
 
-Formato definido, ainda a implementar:
+Formato implementado globalmente em B07 (a regra de conflito de reservas ainda será implementada em B10):
 ```json
 {"status":409,"mensagem":"Já existe uma reserva para essa quadra no intervalo informado.","campos":[]}
 ```
