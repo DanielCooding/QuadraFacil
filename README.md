@@ -48,9 +48,9 @@ java -jar target/quadrafacil-inicial-0.1.0.jar
 
 **Objetivo do MVP:** cadastrar clientes e quadras e reservar um horário sem conflitos. A regra central é que uma mesma quadra não pode ter duas reservas confirmadas com horários sobrepostos.
 
-**O que está implementado hoje:** o serviço Spring Boot, quatro entidades JPA, repositories, DTOs com Bean Validation e H2 configurado. `GET /api/status` continua funcionando e Os endpoints de quadras já usam o H2 para cadastro, consulta, edição e alteração de situação. Os endpoints de clientes e reservas ainda serão implementados.
+**O que está implementado hoje:** o serviço Spring Boot, quatro entidades JPA, repositories, DTOs com Bean Validation e H2 configurado. `GET /api/status` continua funcionando e os endpoints de quadras já usam o H2 para cadastro, consulta, edição e alteração de situação. Clientes já possuem cadastro e consultas. Reservas e funcionamento ainda serão implementados.
 
-**O que está planejado:** cadastro e consulta de clientes e quadras, funcionamento, criação e cancelamento de reservas, consulta de agenda e testes automatizados. O desenvolvimento é acompanhado pelas issues B01 a B16 (#5 a #20).
+**Próximas etapas:** funcionamento, criação e cancelamento de reservas, consulta de agenda e ampliação dos testes automatizados. O desenvolvimento é acompanhado pelas issues B01 a B16 (#5 a #20).
 
 As issues #1 a #4 estão fechadas porque o planejamento foi concluído. Elas registram as histórias e a definição do MVP, **não funcionalidades implementadas**.
 
@@ -112,6 +112,25 @@ Invoke-RestMethod -Method Put -Uri "http://localhost:8080/api/quadras/$($quadra.
 Invoke-RestMethod -Method Patch -Uri "http://localhost:8080/api/quadras/$($quadra.id)/situacao" -ContentType 'application/json' -Body '{"ativa":false}'
 ```
 
-Nome e modalidade são obrigatórios e têm espaços externos removidos. Preço deve ser positivo e ter até duas casas. Campos extras são rejeitados. Erros do módulo retornam JSON com `status`, `mensagem` e `campos` (400/404). A padronização geral dos outros módulos permanece em B07.
+Nome e modalidade são obrigatórios e têm espaços externos removidos. Preço deve ser positivo e ter até duas casas. Campos extras são rejeitados. Erros usam o tratamento global de B07: JSON com `status`, `mensagem` e `campos`.
 
 Desativar não apaga reservas nem altera seus valores. A rejeição de novas reservas em quadras inativas será implementada/testada com o endpoint de reservas em B09; ele ainda não existe.
+
+## Clientes e erros — B06 e B07
+
+| Método | Caminho | Resultado |
+|---|---|---|
+| POST | `/api/clientes` | 201, cliente salvo e header Location |
+| GET | `/api/clientes` | 200, lista ordenada por nome e ID |
+| GET | `/api/clientes/{id}` | 200 ou 404 |
+
+```powershell
+$cliente = Invoke-RestMethod -Method Post -Uri http://localhost:8080/api/clientes -ContentType 'application/json' -Body '{"nome":"Joao","email":"joao@example.com"}'
+Invoke-RestMethod "http://localhost:8080/api/clientes/$($cliente.id)"
+```
+
+Nome e e-mail são obrigatórios, com limites de 100 e 254 caracteres. Removemos espaços nas extremidades antes de validar. E-mail precisa ter formato válido, mas não é único nem representa uma conta de login.
+
+`compartilhado/erro/ApiExceptionHandler` atende todos os controllers: 400 para entrada inválida, 404 para ausência, 409 para conflito de negócio/integridade e 500 com mensagem genérica para falha inesperada. Erros HTTP como 405 e 415 preservam seus códigos. Nenhuma resposta inclui stack trace, SQL ou o valor rejeitado. As mensagens de `ResponseStatusException` devem ser constantes controladas pelo Service, nunca mensagens de exceções internas.
+
+DTOs usam Bean Validation e mensagens em português. O corpo segue o contrato `status`, `mensagem`, `campos`. Novos módulos devem usar esse handler, sem duplicar tratamentos locais. Os testes de conflito e falha inesperada usam controllers exclusivos de teste; não existem rotas artificiais de erro no JAR de produção. A prevenção de sobreposição continua em B10.
