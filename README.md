@@ -12,7 +12,7 @@ Esta pasta é uma entrega independente da primeira etapa do projeto. Não é nec
 | 2. Uma persona | `docs/01-proposta.md`, seção 2 |
 | 3. Três histórias priorizadas | `docs/01-proposta.md`, seção 3 |
 | 4. MVP definido | `docs/01-proposta.md`, seção 4 |
-| 5. Modelo inicial | `docs/02-modelo-inicial.md` e classes em `src/main/java/br/com/quadrafacil/modelo` |
+| 5. Modelo inicial | `docs/02-modelo-inicial.md` e entidades nos pacotes `cliente`, `quadra`, `reserva` e `funcionamento` |
 | 6. Spring Boot rodando | Aplicação executável e endpoints abaixo |
 | 7. README | Este arquivo |
 
@@ -48,7 +48,7 @@ java -jar target/quadrafacil-inicial-0.1.0.jar
 
 **Objetivo do MVP:** cadastrar clientes e quadras e reservar um horário sem conflitos. A regra central é que uma mesma quadra não pode ter duas reservas confirmadas com horários sobrepostos.
 
-**O que está implementado hoje:** o serviço Spring Boot, o modelo inicial em Java (records), a documentação, `GET /api/status` e `GET /api/quadras`. A resposta de quadras é apenas um exemplo fixo.
+**O que está implementado hoje:** o serviço Spring Boot, quatro entidades JPA, repositories, DTOs com Bean Validation e H2 configurado. `GET /api/status` continua funcionando e `GET /api/quadras` ainda retorna o exemplo fixo, preservado até B04. Não há cadastro ou reserva HTTP implementados nesta etapa.
 
 **O que está planejado:** cadastro e consulta de clientes e quadras, funcionamento, criação e cancelamento de reservas, consulta de agenda e testes automatizados. O desenvolvimento é acompanhado pelas issues B01 a B16 (#5 a #20).
 
@@ -67,3 +67,26 @@ src/main/resources/         configuração e página inicial
 src/test/java/              teste HTTP de inicialização
 pom.xml                     dependências e build
 ```
+
+## Base preparada em B02 e contratos de B03
+
+Os contratos completos estão em [docs/03-contratos-http.md](docs/03-contratos-http.md). Eles distinguem o que funciona hoje dos endpoints planejados. O modelo atualizado está em [docs/02-modelo-inicial.md](docs/02-modelo-inicial.md).
+
+```text
+br/com/quadrafacil/
+  apresentacao/controller/       status da aplicação
+  cliente/                      entity, repository, dto, service, controller
+  quadra/                       entity, repository, dto, service, controller
+  reserva/                      entity, repository, dto, service, controller
+  funcionamento/                quarta entidade e configuração semanal
+```
+
+Os pacotes ainda sem implementação de fluxo têm `package-info.java` explicando a responsabilidade. Não criamos Controllers ou Services vazios nem endpoints que finjam salvar dados. Quadra mantém um Service de exemplo até B04; entidades JPA não são retornadas diretamente pela API.
+
+### Banco didático
+
+A URL local é `jdbc:h2:mem:quadrafacil`, usuário `sa` e senha vazia apenas para esse banco em memória. Nenhum serviço externo ou arquivo `.env` é necessário. `create-drop` cria o schema na inicialização e o remove no encerramento. Os dados não sobrevivem ao reinício; `DB_CLOSE_DELAY=-1` só mantém o banco vivo entre conexões da mesma execução. O console H2 está desabilitado.
+
+Os testes usam outro banco, `quadrafacil-testes`, e as transações do teste JPA são revertidas. Execute `mvn verify` para compilar, testar e gerar o JAR. A suíte verifica status HTTP, preservação do exemplo de quadras, validação dos DTOs e gravação/leitura dos relacionamentos no H2. Ela ainda não comprova regras de reservas, que serão implementadas e testadas em B09–B13.
+
+`target/`, arquivos de IDE, bancos locais, logs e segredos estão no `.gitignore`. Maven 3.9+ deve estar instalado; o projeto ainda não fornece Maven Wrapper.
