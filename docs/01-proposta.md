@@ -4,13 +4,13 @@
 
 **Nome do projeto:** QuadraFácil.
 
-**Integrantes:** Daniel Lucas, João Nobrega e Dante Cavalcante .
+**Integrantes:** Daniel Lucas, João Nobrega e Dante Cavalcante.
 
-**Problema:** Um proprietário de quadras esportivas que organiza reservas por mensagens ou anotações e precisava conferir manualmente a agenda. Isso poderia gerar reservas duplicadas, informações desatualizadas e dificuldade para informar horários livres. Os clientes dependem de respostas do responsável para escolher e confirmar um horário.
+**Problema:** Proprietários de quadras esportivas que organizam reservas por mensagens ou anotações precisam conferir a agenda manualmente. Isso pode gerar reservas duplicadas, informações desatualizadas e dificuldade para informar horários livres. Os clientes dependem de respostas do responsável para escolher e confirmar um horário.
 
 **Público-alvo:** Proprietários de espaços esportivos e pessoas que desejam reservar e organizar quadras de futebol, vôlei, beach tennis ou outras modalidades.
 
-**Solução proposta:** Uma aplicação web que centraliza quadras e reservas, permite consultar disponibilidade e impede reservas sobrepostas para a mesma quadra.
+**Solução proposta:** Um sistema que centraliza quadras e reservas, permite consultar a agenda e impede reservas sobrepostas para a mesma quadra. Nesta etapa da disciplina, o sistema é uma **API REST com respostas JSON**, testada diretamente por Bruno, Postman ou curl.
 
 ## 2. Uma persona
 
@@ -18,7 +18,7 @@
 
 **Nome:** Joãozinho Botafogo. **Idade:** 27 anos. **Ocupação:** auxiliar administrativo.
 
-Joãozinho organiza uma partida de futebol com amigos toda semana. Usa principalmente o celular e combina o jogo em um grupo de amigos no Whatsapp.
+Joãozinho organiza uma partida de futebol com amigos toda semana. Usa principalmente o celular e combina o jogo em um grupo de amigos no WhatsApp.
 
 - **Objetivo:** encontrar uma quadra e confirmar um horário sem depender de várias trocas de mensagens.
 - **Dificuldades:** demora na resposta sobre disponibilidade, falta de clareza no preço e receio de chegar e encontrar outra reserva no mesmo horário.
@@ -27,56 +27,104 @@ Joãozinho organiza uma partida de futebol com amigos toda semana. Usa principal
 
 ## 3. Três histórias de usuário priorizadas
 
+As histórias abaixo estão ajustadas ao recorte da disciplina: não há login, cobrança online nem frontend completo. O estado de cada uma está na seção 5.
+
 ### Prioridade 1 — Consultar disponibilidade
 
-Como cliente, quero consultar quadras e horários disponíveis por data para escolher um intervalo adequado ao meu grupo.
+Como cliente, quero consultar as quadras e a agenda de uma data para escolher um intervalo adequado ao meu grupo.
 
 **Critérios de aceitação previstos:**
 
-- Selecionar a data e consultar o funcionamento da quadra.
-- Diferenciar horários livres e ocupados com textos, além das cores.
-- Exibir nome, modalidade e preço por hora.
+- Consultar a agenda de uma quadra em uma data, com o funcionamento do dia e os intervalos já ocupados por reservas confirmadas.
+- Reservas canceladas não aparecem como ocupadas.
+- A resposta traz nome, modalidade e preço por hora da quadra.
 
 ### Prioridade 2 — Reservar sem conflito
 
-Como cliente, quero reservar um intervalo livre e revisar o valor para garantir meu horário sem sobreposição com outra reserva.
+Como cliente, quero reservar um intervalo livre e ver o valor calculado para garantir meu horário sem sobreposição com outra reserva.
 
 **Critérios de aceitação previstos:**
 
-- Exigir identificação do cliente e intervalo dentro do funcionamento.
-- Calcular o valor no backend e salvar o preço contratado.
+- Informar um cliente e uma quadra existentes, e um intervalo dentro do funcionamento.
+- Calcular o valor no backend e salvar o preço contratado na reserva.
 - Rejeitar sobreposição parcial ou total, inclusive em solicitações simultâneas.
 - Permitir reservas consecutivas e reservas simultâneas em quadras diferentes.
-- Retornar confirmação ou explicar o conflito de horário.
+- Retornar a confirmação ou explicar o conflito de horário.
 
 ### Prioridade 3 — Administrar a agenda
 
-Como proprietário, quero cadastrar minhas quadras, definir funcionamento e consultar reservas por data para organizar o uso do espaço.
+Como responsável pelas quadras, quero cadastrar quadras, definir o funcionamento e consultar as reservas por data para organizar o uso do espaço.
 
 **Critérios de aceitação previstos:**
 
-- Cadastrar nome, modalidade e preço por hora da quadra.
+- Cadastrar nome, modalidade e preço por hora da quadra, e desativar uma quadra.
 - Definir dias e horários de funcionamento.
-- Consultar reservas de suas próprias quadras e cancelar uma reserva quando necessário.
-- Impedir alterações de funcionamento que invalidem reservas existentes.
+- Consultar as reservas de uma quadra por data e cancelar uma reserva quando necessário.
+- Impedir alterações de funcionamento que invalidem reservas confirmadas.
 
-## 4. MVP definido
+## 4. MVP definido (recorte da disciplina)
 
-**Objetivo do MVP:** permitir que um cliente encontre um horário e faça uma reserva confiável, enquanto o proprietário acompanha a agenda.
+**Objetivo do MVP:** permitir cadastrar clientes e quadras e **reservar um horário sem conflitos**.
 
-**Incluído no MVP planejado:**
+**Regra central:** uma mesma quadra não pode ter duas reservas confirmadas com horários sobrepostos.
 
-- Autenticação e separação de cliente/proprietário.
-- Cadastro básico de quadras e funcionamento semanal.
-- Consulta de disponibilidade por data.
+**Fluxo principal de ponta a ponta:**
+
+1. Cadastrar uma quadra (com funcionamento) e um cliente.
+2. Consultar a agenda da quadra em uma data.
+3. Criar uma reserva em um intervalo livre; o servidor calcula o valor.
+4. Tentar reservar um intervalo que se sobrepõe: o sistema recusa com mensagem clara.
+5. Cancelar uma reserva: o histórico fica preservado e o intervalo é liberado.
+
+**Entidades (quatro):** Cliente, Quadra, Reserva e Horário de Funcionamento. Detalhes em `docs/02-modelo-inicial.md`.
+
+**Incluído no MVP:**
+
+- Cadastro e consulta de clientes.
+- Cadastro, consulta, edição e desativação de quadras, com funcionamento semanal.
 - Reserva com duração mínima de 1 hora, incrementos de 30 minutos e valor calculado pelo servidor.
-- Proteção contra sobreposição no backend e no PostgreSQL.
-- Consulta das próprias reservas pelo cliente e da agenda pelo proprietário.
+- Proteção contra sobreposição no backend, com transação e bloqueio da quadra durante a verificação e a gravação.
+- Consulta da agenda por quadra e data.
 - Cancelamento com preservação do histórico e liberação do intervalo.
+- Validações e respostas de erro padronizadas, e testes automatizados com H2.
 
-**Fora deste MVP:** pagamento online, prazo de pagamento, reembolso, código de acesso, fechaduras/portões, upload de fotos, relatórios avançados e notificações automáticas. Essas funcionalidades pertencem à evolução do projeto completo.
+**Fora desta etapa:** login e perfis de acesso, pagamento online, frontend completo, integrações externas, Docker e microsserviços. A lista de requisitos futuros está na seção 6.
 
-**Política simplificada do MVP:** reservas aceitas ficam confirmadas. O cliente pode cancelar antes do início, e o proprietário pode cancelar suas reservas com registro do histórico. As regras financeiras serão definidas quando o pagamento for incorporado.
+**Política simplificada do MVP:**
 
-**Tecnologias previstas:** Java 21 e Spring Boot; PostgreSQL/Supabase; frontend HTML, CSS e JavaScript puro. Vercel e Railway são opções de publicação futura, não requisitos para executar esta primeira entrega.
+- Uma reserva aceita fica confirmada, sem cobrança online.
+- Uma reserva confirmada pode ser cancelada enquanto ainda não começou. O cancelamento preserva o histórico e libera o horário.
+- Os horários usam o fuso de Brasília (`America/Sao_Paulo`).
 
+> Duração mínima, incrementos de 30 minutos e a política de cancelamento são a proposta atual e serão confirmados no contrato HTTP (issue B03) e na implementação do cancelamento (issue B11).
+
+**Tecnologias desta etapa:** Java 21, Spring Boot, Maven, Spring Web, Spring Data JPA, Bean Validation, H2 e JUnit. A API é testada com Bruno, Postman ou curl.
+
+**Sobre o H2:** é um banco em memória, usado nesta etapa **apenas com finalidade didática**. Os dados não são mantidos ao reiniciar a aplicação. Ele não é a escolha para um sistema em produção.
+
+## 5. Estado das histórias e das issues de planejamento
+
+As issues #1 a #4 estão fechadas porque o **planejamento** foi concluído. Elas registram a definição das histórias e do MVP e **não indicam que a funcionalidade esteja implementada**. O desenvolvimento é acompanhado pelas issues B01 a B16 (#5 a #20).
+
+| Registro | Conteúdo | Estado da funcionalidade |
+|---|---|---|
+| #1 — História 01 | Consultar disponibilidade | Planejada |
+| #2 — História 02 | Reservar sem conflito | Planejada |
+| #3 — História 03 | Administrar a agenda | Planejada |
+| #4 — MVP | Definição do escopo | Planejado |
+
+O que existe hoje: aplicação Spring Boot executável, modelo inicial em records, `GET /api/status` e `GET /api/quadras` com uma quadra fixa de exemplo. Ainda não há persistência, cadastros reais nem criação de reservas.
+
+## 6. Requisitos futuros (fora da entrega acadêmica)
+
+Fazem parte da ideia original do projeto, mas **não serão implementados nesta etapa**:
+
+| Recurso | Observação |
+|---|---|
+| Autenticação e perfis (cliente e proprietário) | A etapa atual não tem login |
+| PostgreSQL/Supabase | Substitui o H2 em uma versão real; a restrição de exclusão de intervalos no banco entra aqui |
+| Pagamento online (Mercado Pago), prazo e reembolso | Hoje a reserva aceita já fica confirmada |
+| Código de acesso por reserva | Depende de definição futura |
+| Frontend HTML, CSS e JavaScript | A demonstração desta etapa é feita pela API |
+| Publicação na Vercel/Railway | Não é requisito para executar esta entrega |
+| Fotos, relatórios avançados e notificações | Evolução do projeto completo |
