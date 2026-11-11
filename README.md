@@ -32,7 +32,7 @@ Endpoints:
 
 - `GET /` — apresentação simples do serviço.
 - `GET /api/status` — confirma que a aplicação está em execução.
-- `GET /api/quadras` — retorna uma quadra ilustrativa, sem persistência.
+- `GET /api/quadras` — consulta as quadras cadastradas no H2, incluindo inativas.
 
 Para usar outra porta: `mvn spring-boot:run -Dspring-boot.run.arguments=--server.port=8081`.
 
@@ -48,7 +48,7 @@ java -jar target/quadrafacil-inicial-0.1.0.jar
 
 **Objetivo do MVP:** cadastrar clientes e quadras e reservar um horário sem conflitos. A regra central é que uma mesma quadra não pode ter duas reservas confirmadas com horários sobrepostos.
 
-**O que está implementado hoje:** o serviço Spring Boot, quatro entidades JPA, repositories, DTOs com Bean Validation e H2 configurado. `GET /api/status` continua funcionando e `GET /api/quadras` ainda retorna o exemplo fixo, preservado até B04. Não há cadastro ou reserva HTTP implementados nesta etapa.
+**O que está implementado hoje:** o serviço Spring Boot, quatro entidades JPA, repositories, DTOs com Bean Validation e H2 configurado. `GET /api/status` continua funcionando e Os endpoints de quadras já usam o H2 para cadastro, consulta, edição e alteração de situação. Os endpoints de clientes e reservas ainda serão implementados.
 
 **O que está planejado:** cadastro e consulta de clientes e quadras, funcionamento, criação e cancelamento de reservas, consulta de agenda e testes automatizados. O desenvolvimento é acompanhado pelas issues B01 a B16 (#5 a #20).
 
@@ -81,12 +81,37 @@ br/com/quadrafacil/
   funcionamento/                quarta entidade e configuração semanal
 ```
 
-Os pacotes ainda sem implementação de fluxo têm `package-info.java` explicando a responsabilidade. Não criamos Controllers ou Services vazios nem endpoints que finjam salvar dados. Quadra mantém um Service de exemplo até B04; entidades JPA não são retornadas diretamente pela API.
+Os pacotes ainda sem implementação de fluxo têm `package-info.java` explicando a responsabilidade. Não criamos Controllers ou Services vazios nem endpoints que finjam salvar dados. Quadra já possui Controller, Service transacional e Repository; entidades JPA não são retornadas diretamente pela API.
 
 ### Banco didático
 
 A URL local é `jdbc:h2:mem:quadrafacil`, usuário `sa` e senha vazia apenas para esse banco em memória. Nenhum serviço externo ou arquivo `.env` é necessário. `create-drop` cria o schema na inicialização e o remove no encerramento. Os dados não sobrevivem ao reinício; `DB_CLOSE_DELAY=-1` só mantém o banco vivo entre conexões da mesma execução. O console H2 está desabilitado.
 
-Os testes usam outro banco, `quadrafacil-testes`, e as transações do teste JPA são revertidas. Execute `mvn verify` para compilar, testar e gerar o JAR. A suíte verifica status HTTP, preservação do exemplo de quadras, validação dos DTOs e gravação/leitura dos relacionamentos no H2. Ela ainda não comprova regras de reservas, que serão implementadas e testadas em B09–B13.
+Os testes usam outro banco, `quadrafacil-testes`, e as transações do teste JPA são revertidas. Execute `mvn verify` para compilar, testar e gerar o JAR. A suíte verifica status HTTP, fluxo HTTP de quadras, validação dos DTOs e gravação/leitura dos relacionamentos no H2. Ela ainda não comprova regras de reservas, que serão implementadas e testadas em B09–B13.
 
 `target/`, arquivos de IDE, bancos locais, logs e segredos estão no `.gitignore`. Maven 3.9+ deve estar instalado; o projeto ainda não fornece Maven Wrapper.
+
+## Quadras — B04 e B05
+
+O banco começa vazio. A lista fixa foi removida e `proprietarioId` não faz mais parte da resposta, conforme B03.
+
+| Método | Caminho | Resultado |
+|---|---|---|
+| POST | `/api/quadras` | 201 e Location da quadra criada |
+| GET | `/api/quadras` | 200, lista do banco, inclusive inativas |
+| GET | `/api/quadras/{id}` | 200 ou 404 |
+| PUT | `/api/quadras/{id}` | 200, atualiza nome/modalidade/preço sem alterar situação |
+| PATCH | `/api/quadras/{id}/situacao` | 200, desativa ou reativa sem excluir dados |
+
+No PowerShell, com a aplicação rodando:
+
+```powershell
+$quadra = Invoke-RestMethod -Method Post -Uri http://localhost:8080/api/quadras -ContentType 'application/json' -Body '{"nome":"Central","modalidade":"Futebol","precoHora":120.00}'
+Invoke-RestMethod http://localhost:8080/api/quadras
+Invoke-RestMethod -Method Put -Uri "http://localhost:8080/api/quadras/$($quadra.id)" -ContentType 'application/json' -Body '{"nome":"Central Coberta","modalidade":"Futebol","precoHora":150.00}'
+Invoke-RestMethod -Method Patch -Uri "http://localhost:8080/api/quadras/$($quadra.id)/situacao" -ContentType 'application/json' -Body '{"ativa":false}'
+```
+
+Nome e modalidade são obrigatórios e têm espaços externos removidos. Preço deve ser positivo e ter até duas casas. Campos extras são rejeitados. Erros do módulo retornam JSON com `status`, `mensagem` e `campos` (400/404). A padronização geral dos outros módulos permanece em B07.
+
+Desativar não apaga reservas nem altera seus valores. A rejeição de novas reservas em quadras inativas será implementada/testada com o endpoint de reservas em B09; ele ainda não existe.
