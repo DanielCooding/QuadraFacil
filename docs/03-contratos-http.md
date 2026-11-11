@@ -7,10 +7,10 @@ Vamos usar `/api` em todos os endpoints de negócio. Este documento define o que
 | Endpoint | Situação |
 |---|---|
 | `GET /api/status` | Implementado: status da aplicação |
-| `GET /api/quadras` | Implementado apenas com lista fixa de exemplo; B04 fará a consulta ao H2 |
+| `GET /api/quadras` | Implementado com consulta ao H2 (B04), incluindo quadras inativas |
 | `GET /` | Página simples de apresentação |
 
-O exemplo atual de quadras ainda retorna `proprietarioId` para preservar a resposta existente. Esse campo será removido em B04: o MVP não tem proprietário autenticado. As entidades JPA e repositories já estão disponíveis, mas ainda não estão ligados a cadastros HTTP. Os DTOs de entrada antecipam validações de campos; regras entre campos serão implementadas nos Services.
+B04/B05 implementam também `POST /api/quadras`, `GET /api/quadras/{id}`, `PUT /api/quadras/{id}` e `PATCH /api/quadras/{id}/situacao`, conforme as seções abaixo. A resposta não inclui mais `proprietarioId`. Clientes, funcionamento, reservas e agenda permanecem planejados. Há tratamento local de erros de quadras; B07 deverá padronizar os demais módulos.
 
 ## Convenções
 

@@ -32,6 +32,13 @@ public class Quadra {
         this.ativa = ativa;
     }
 
+    public void atualizar(String nome, String modalidade, BigDecimal precoHora) {
+        this.nome = nome;
+        this.modalidade = modalidade;
+        this.precoHora = precoHora;
+    }
+    public void alterarSituacao(boolean ativa) { this.ativa = ativa; }
+
     public UUID getId() { return id; }
     public String getNome() { return nome; }
     public String getModalidade() { return modalidade; }
