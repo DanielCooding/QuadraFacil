@@ -1,7 +1,7 @@
 package br.com.quadrafacil;
 
-import br.com.quadrafacil.cliente.repository.ClienteRepository;
-import br.com.quadrafacil.reserva.repository.ReservaRepository;
+import br.com.quadrafacil.repository.ClienteRepository;
+import br.com.quadrafacil.repository.ReservaRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,13 +1,13 @@
 package br.com.quadrafacil;
 
-import br.com.quadrafacil.cliente.entity.Cliente;
-import br.com.quadrafacil.cliente.repository.ClienteRepository;
-import br.com.quadrafacil.quadra.entity.Quadra;
-import br.com.quadrafacil.quadra.repository.QuadraRepository;
-import br.com.quadrafacil.reserva.entity.*;
-import br.com.quadrafacil.reserva.repository.ReservaRepository;
-import br.com.quadrafacil.funcionamento.entity.HorarioFuncionamento;
-import br.com.quadrafacil.funcionamento.repository.HorarioFuncionamentoRepository;
+import br.com.quadrafacil.entity.Cliente;
+import br.com.quadrafacil.repository.ClienteRepository;
+import br.com.quadrafacil.entity.Quadra;
+import br.com.quadrafacil.repository.QuadraRepository;
+import br.com.quadrafacil.entity.*;
+import br.com.quadrafacil.repository.ReservaRepository;
+import br.com.quadrafacil.entity.HorarioFuncionamento;
+import br.com.quadrafacil.repository.HorarioFuncionamentoRepository;
 import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.time.*;
