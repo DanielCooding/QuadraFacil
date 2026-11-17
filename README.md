@@ -12,7 +12,7 @@ Esta pasta é uma entrega independente da primeira etapa do projeto. Não é nec
 | 2. Uma persona | `docs/01-proposta.md`, seção 2 |
 | 3. Três histórias priorizadas | `docs/01-proposta.md`, seção 3 |
 | 4. MVP definido | `docs/01-proposta.md`, seção 4 |
-| 5. Modelo inicial | `docs/02-modelo-inicial.md` e entidades nos pacotes `cliente`, `quadra`, `reserva` e `funcionamento` |
+| 5. Modelo inicial | `docs/02-modelo-inicial.md` e classes no pacote `entity` |
 | 6. Spring Boot rodando | Aplicação executável e endpoints abaixo |
 | 7. README | Este arquivo |
 
@@ -74,14 +74,16 @@ Os contratos completos estão em [docs/03-contratos-http.md](docs/03-contratos-h
 
 ```text
 br/com/quadrafacil/
-  apresentacao/controller/       status da aplicação
-  cliente/                      entity, repository, dto, service, controller
-  quadra/                       entity, repository, dto, service, controller
-  reserva/                      entity, repository, dto, service, controller
-  funcionamento/                quarta entidade e configuração semanal
+  controller/                   endpoints de apresentação, clientes e quadras
+  service/                      regras e transações de clientes e quadras
+  dto/                          dados de entrada e saída da API
+  entity/                       entidades JPA e estado da reserva
+  repository/                   acesso ao banco de dados
+  exception/                    tratamento global dos erros da API
+  QuadraFacilApplication.java    inicialização do Spring Boot
 ```
 
-Os pacotes ainda sem implementação de fluxo têm `package-info.java` explicando a responsabilidade. Não criamos Controllers ou Services vazios nem endpoints que finjam salvar dados. Quadra já possui Controller, Service transacional e Repository; entidades JPA não são retornadas diretamente pela API.
+O código está organizado por camadas: todos os Controllers ficam em `controller`, os Services em `service` e os DTOs em `dto`. Clientes e quadras já possuem Controller, Service transacional e Repository; entidades JPA não são retornadas diretamente pela API. Os fluxos de reservas e funcionamento serão adicionados nas mesmas pastas nas próximas etapas.
 
 ### Banco didático
 
@@ -131,6 +133,6 @@ Invoke-RestMethod "http://localhost:8080/api/clientes/$($cliente.id)"
 
 Nome e e-mail são obrigatórios, com limites de 100 e 254 caracteres. Removemos espaços nas extremidades antes de validar. E-mail precisa ter formato válido, mas não é único nem representa uma conta de login.
 
-`compartilhado/erro/ApiExceptionHandler` atende todos os controllers: 400 para entrada inválida, 404 para ausência, 409 para conflito de negócio/integridade e 500 com mensagem genérica para falha inesperada. Erros HTTP como 405 e 415 preservam seus códigos. Nenhuma resposta inclui stack trace, SQL ou o valor rejeitado. As mensagens de `ResponseStatusException` devem ser constantes controladas pelo Service, nunca mensagens de exceções internas.
+`exception/ApiExceptionHandler` atende todos os controllers: 400 para entrada inválida, 404 para ausência, 409 para conflito de negócio/integridade e 500 com mensagem genérica para falha inesperada. Erros HTTP como 405 e 415 preservam seus códigos. Nenhuma resposta inclui stack trace, SQL ou o valor rejeitado. As mensagens de `ResponseStatusException` devem ser constantes controladas pelo Service, nunca mensagens de exceções internas.
 
 DTOs usam Bean Validation e mensagens em português. O corpo segue o contrato `status`, `mensagem`, `campos`. Novos módulos devem usar esse handler, sem duplicar tratamentos locais. Os testes de conflito e falha inesperada usam controllers exclusivos de teste; não existem rotas artificiais de erro no JAR de produção. A prevenção de sobreposição continua em B10.

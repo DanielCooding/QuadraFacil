@@ -1,8 +1,8 @@
 package br.com.quadrafacil;
 
-import br.com.quadrafacil.cliente.dto.ClienteRequest;
-import br.com.quadrafacil.quadra.dto.QuadraRequest;
-import br.com.quadrafacil.reserva.dto.ReservaRequest;
+import br.com.quadrafacil.dto.ClienteRequest;
+import br.com.quadrafacil.dto.QuadraRequest;
+import br.com.quadrafacil.dto.ReservaRequest;
 import jakarta.validation.Validation;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
