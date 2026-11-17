@@ -54,7 +54,7 @@ Pagamentos, credenciais de acesso e dispositivos não fazem parte deste recorte 
 
 ## Decisões do mapeamento JPA
 
-- IDs UUID gerados pelo servidor em todas as entidades.
+- IDs Long gerados pelo servidor em todas as entidades.
 - Reserva aponta para Cliente e Quadra com `ManyToOne` obrigatório e carregamento lazy. HorárioFuncionamento aponta para Quadra da mesma forma.
 - Relações unidirecionais, sem coleções bidirecionais, sem `ManyToMany` e sem exclusão em cascata.
 - Funcionamento é a quarta entidade, com unicidade por quadra e dia da semana; dia omitido significa fechado.

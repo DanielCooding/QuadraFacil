@@ -1,7 +1,6 @@
 package br.com.quadrafacil.entity;
 
 import jakarta.persistence.*;
-import java.util.UUID;
 import java.math.BigDecimal;
 import java.time.Instant;
 import br.com.quadrafacil.entity.Cliente;
@@ -11,8 +10,8 @@ import br.com.quadrafacil.entity.Quadra;
 @Table(name = "reservas")
 public class Reserva {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "cliente_id", nullable = false)
@@ -46,7 +45,7 @@ public class Reserva {
         this.estado = estado;
     }
 
-    public UUID getId() { return id; }
+    public Long getId() { return id; }
     public Cliente getCliente() { return cliente; }
     public Quadra getQuadra() { return quadra; }
     public Instant getInicio() { return inicio; }

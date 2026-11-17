@@ -1,15 +1,14 @@
 package br.com.quadrafacil.entity;
 
 import jakarta.persistence.*;
-import java.util.UUID;
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "quadras")
 public class Quadra {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(nullable = false, length = 100)
     private String nome;
@@ -39,7 +38,7 @@ public class Quadra {
     }
     public void alterarSituacao(boolean ativa) { this.ativa = ativa; }
 
-    public UUID getId() { return id; }
+    public Long getId() { return id; }
     public String getNome() { return nome; }
     public String getModalidade() { return modalidade; }
     public BigDecimal getPrecoHora() { return precoHora; }

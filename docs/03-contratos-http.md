@@ -15,13 +15,13 @@ B04/B05 implementam também `POST /api/quadras`, `GET /api/quadras/{id}`, `PUT /
 ## Convenções
 
 - Requisições com corpo usam `Content-Type: application/json`.
-- IDs são UUIDs gerados pelo servidor. ID malformado retorna 400; bem formado, mas inexistente, retorna 404.
+- IDs são IDs numéricos gerados pelo servidor. ID malformado retorna 400; bem formado, mas inexistente, retorna 404.
 - Coleções retornam arrays, inclusive `[]` quando não há resultados. Sem paginação neste MVP didático.
 - Campos de entrada aceitos são apenas os documentados. Campos extras devem retornar 400 na implementação HTTP; nunca aceitar `valorTotal`, `estado` ou `id` enviados na criação de reserva.
 - Não há login ou controle por usuário nesta etapa. Usar dados fictícios e executar localmente, sem tratar a API como pronta para exposição pública.
 - Dinheiro usa `BigDecimal`, reais e duas casas decimais. Preço por hora: de 0,01 a 9.999.999.999,99. Valor total com a mesma precisão; exceder esse limite retorna 400.
 - Instantes são enviados em ISO 8601 com offset obrigatório, por exemplo `2030-01-07T18:00:00-03:00`. Respostas usam UTC com `Z`. Interpretar funcionamento e data da agenda em `America/Sao_Paulo`.
-- Nos exemplos, substitua os UUIDs pelos retornados no cadastro e escolha uma data futura.
+- Nos exemplos, substitua os IDs numéricos pelos retornados no cadastro e escolha uma data futura.
 
 ## Clientes — B06
 
@@ -29,7 +29,7 @@ B04/B05 implementam também `POST /api/quadras`, `GET /api/quadras/{id}`, `PUT /
 |---|---|---|
 | `POST /api/clientes` | `nome`, `email` | 201, cliente criado e header `Location: /api/clientes/{id}` |
 | `GET /api/clientes` | Sem corpo | 200, array de clientes |
-| `GET /api/clientes/{id}` | UUID no caminho | 200, cliente |
+| `GET /api/clientes/{id}` | Long no caminho | 200, cliente |
 
 Nome obrigatório, não branco, até 100 caracteres. E-mail obrigatório, formato válido, até 254 caracteres. Remover espaços nas extremidades antes de validar/persistir. E-mail não é uma conta de login nem chave única neste MVP. Não há exclusão de clientes nesta etapa.
 
@@ -39,7 +39,7 @@ Entrada:
 ```
 Resposta 201 ou objeto de consulta:
 ```json
-{"id":"00000000-0000-0000-0000-000000000001","nome":"Joãozinho Botafogo","email":"joao@example.com"}
+{"id":1,"nome":"Joãozinho Botafogo","email":"joao@example.com"}
 ```
 
 ## Quadras — B04 e B05
@@ -48,7 +48,7 @@ Resposta 201 ou objeto de consulta:
 |---|---|---|
 | `POST /api/quadras` | `nome`, `modalidade`, `precoHora` | 201, quadra com `ativa:true` e Location |
 | `GET /api/quadras` | Sem corpo | 200, array de quadras, incluindo inativas |
-| `GET /api/quadras/{id}` | UUID | 200, quadra |
+| `GET /api/quadras/{id}` | Long | 200, quadra |
 | `PUT /api/quadras/{id}` | Os mesmos três campos obrigatórios do cadastro | 200, quadra atualizada; preserva `ativa` |
 | `PATCH /api/quadras/{id}/situacao` | `{"ativa":false}` ou `{"ativa":true}` | 200, quadra atualizada |
 
@@ -60,7 +60,7 @@ Entrada:
 ```
 Resposta:
 ```json
-{"id":"00000000-0000-0000-0000-000000000002","nome":"Quadra Central","modalidade":"Futebol","precoHora":120.00,"ativa":true}
+{"id":2,"nome":"Quadra Central","modalidade":"Futebol","precoHora":120.00,"ativa":true}
 ```
 
 ## Funcionamento — B08
@@ -87,14 +87,14 @@ Entrada e resposta:
 | Método e caminho | Entrada | Sucesso |
 |---|---|---|
 | `POST /api/reservas` | clienteId, quadraId, inicio, fim | 201, reserva confirmada e Location |
-| `GET /api/reservas/{id}` | UUID | 200, reserva, inclusive cancelada |
+| `GET /api/reservas/{id}` | Long | 200, reserva, inclusive cancelada |
 | `POST /api/reservas/{id}/cancelamento` | Sem corpo | 200, reserva cancelada |
 
 Entrada:
 ```json
 {
-  "clienteId":"00000000-0000-0000-0000-000000000001",
-  "quadraId":"00000000-0000-0000-0000-000000000002",
+  "clienteId":1,
+  "quadraId":2,
   "inicio":"2030-01-07T18:00:00-03:00",
   "fim":"2030-01-07T19:30:00-03:00"
 }
@@ -102,9 +102,9 @@ Entrada:
 Resposta:
 ```json
 {
-  "id":"00000000-0000-0000-0000-000000000003",
-  "clienteId":"00000000-0000-0000-0000-000000000001",
-  "quadraId":"00000000-0000-0000-0000-000000000002",
+  "id":3,
+  "clienteId":1,
+  "quadraId":2,
   "inicio":"2030-01-07T21:00:00Z",
   "fim":"2030-01-07T22:30:00Z",
   "valorTotal":180.00,
@@ -131,9 +131,9 @@ Regras confirmadas para implementação:
 {
   "data":"2030-01-07",
   "fuso":"America/Sao_Paulo",
-  "quadra":{"id":"00000000-0000-0000-0000-000000000002","nome":"Quadra Central","modalidade":"Futebol","precoHora":120.00,"ativa":true},
+  "quadra":{"id":2,"nome":"Quadra Central","modalidade":"Futebol","precoHora":120.00,"ativa":true},
   "funcionamento":{"abertura":"08:00","fechamento":"22:00"},
-  "reservas":[{"id":"00000000-0000-0000-0000-000000000003","clienteId":"00000000-0000-0000-0000-000000000001","inicio":"2030-01-07T21:00:00Z","fim":"2030-01-07T22:30:00Z","estado":"CONFIRMADA"}]
+  "reservas":[{"id":3,"clienteId":1,"inicio":"2030-01-07T21:00:00Z","fim":"2030-01-07T22:30:00Z","estado":"CONFIRMADA"}]
 }
 ```
 
@@ -152,7 +152,7 @@ Formato implementado globalmente em B07 (a regra de conflito de reservas ainda s
 
 | Código | Exemplos |
 |---|---|
-| 400 | JSON/UUID/data inválidos; campos ausentes ou extras; início >= fim; duração inválida; fora do funcionamento; valor fora do limite |
+| 400 | JSON/Long/data inválidos; campos ausentes ou extras; início >= fim; duração inválida; fora do funcionamento; valor fora do limite |
 | 404 | Cliente, quadra ou reserva inexistente |
 | 409 | Sobreposição; quadra inativa ao reservar; cancelamento após início; mudança de funcionamento que invalida reserva |
 
