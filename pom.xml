@@ -9,6 +9,7 @@
   <groupId>br.com.quadrafacil</groupId>
   <artifactId>quadrafacil-inicial</artifactId>
   <version>0.1.0</version>
+  <packaging>jar</packaging>
   <properties>
     <java.version>21</java.version>
     <jackson-bom.version>3.1.8</jackson-bom.version>
