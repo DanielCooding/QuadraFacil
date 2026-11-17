@@ -5,7 +5,6 @@ import br.com.quadrafacil.service.ClienteService;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
-import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,5 +19,5 @@ public class ClienteController {
         return ResponseEntity.created(URI.create("/api/clientes/" + cliente.id())).body(cliente);
     }
     @GetMapping public List<ClienteResponse> listar() { return service.listar(); }
-    @GetMapping("/{id}") public ClienteResponse consultar(@PathVariable UUID id) { return service.consultar(id); }
+    @GetMapping("/{id}") public ClienteResponse consultar(@PathVariable Long id) { return service.consultar(id); }
 }

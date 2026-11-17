@@ -1,7 +1,6 @@
 package br.com.quadrafacil.entity;
 
 import jakarta.persistence.*;
-import java.util.UUID;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import br.com.quadrafacil.entity.Quadra;
@@ -10,8 +9,8 @@ import br.com.quadrafacil.entity.Quadra;
 @Table(name = "horarios_funcionamento", uniqueConstraints = @UniqueConstraint(columnNames = {"quadra_id", "dia_semana"}))
 public class HorarioFuncionamento {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "quadra_id", nullable = false)
@@ -36,7 +35,7 @@ public class HorarioFuncionamento {
         this.fechamento = fechamento;
     }
 
-    public UUID getId() { return id; }
+    public Long getId() { return id; }
     public Quadra getQuadra() { return quadra; }
     public DayOfWeek getDiaSemana() { return diaSemana; }
     public LocalTime getAbertura() { return abertura; }

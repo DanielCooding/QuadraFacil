@@ -1,7 +1,6 @@
 package br.com.quadrafacil.repository;
 
 import br.com.quadrafacil.entity.Reserva;
-import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ReservaRepository extends JpaRepository<Reserva, UUID> {}
+public interface ReservaRepository extends JpaRepository<Reserva, Long> {}

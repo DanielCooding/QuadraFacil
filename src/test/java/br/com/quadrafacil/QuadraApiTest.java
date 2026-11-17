@@ -10,7 +10,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.net.URI;
 import java.net.http.*;
-import java.util.UUID;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -56,7 +55,7 @@ class QuadraApiTest {
     }
     @Test void editaDesativaEReativaPreservandoHistorico() throws Exception {
         String path = criar();
-        UUID id = UUID.fromString(path.substring(path.lastIndexOf('/')+1));
+        Long id = Long.valueOf(path.substring(path.lastIndexOf('/')+1));
         var cliente = clientes.save(new Cliente("João", "joao@example.com"));
         var reserva = reservas.save(new Reserva(cliente, quadras.findById(id).orElseThrow(),
             Instant.parse("2030-01-07T21:00:00Z"), Instant.parse("2030-01-07T22:00:00Z"),
@@ -87,7 +86,7 @@ class QuadraApiTest {
         assertEquals("Central", json.readTree(request("GET", path, null).body()).get("nome").asText());
     }
     @Test void identificaRegistroAusenteEUuidInvalido() throws Exception {
-        String path = "/api/quadras/"+UUID.randomUUID();
+        String path = "/api/quadras/"+Long.MAX_VALUE;
         assertEquals(404, request("GET", path, null).statusCode());
         assertEquals(404, request("PUT", path, valido).statusCode());
         assertEquals(404, request("PATCH", path+"/situacao", "{\"ativa\":false}").statusCode());

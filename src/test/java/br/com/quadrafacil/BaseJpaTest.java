@@ -35,6 +35,10 @@ class BaseJpaTest {
         var reserva = reservas.save(new Reserva(cliente, quadra, inicio, inicio.plusSeconds(3600),
             new BigDecimal("120.00"), EstadoReserva.CONFIRMADA));
         em.flush();
+        assertTrue(cliente.getId() > 0);
+        assertTrue(quadra.getId() > 0);
+        assertTrue(horario.getId() > 0);
+        assertTrue(reserva.getId() > 0);
         em.clear();
         var salva = reservas.findById(reserva.getId()).orElseThrow();
         assertEquals(cliente.getId(), salva.getCliente().getId());

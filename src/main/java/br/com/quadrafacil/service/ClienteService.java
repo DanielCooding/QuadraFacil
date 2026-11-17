@@ -4,7 +4,7 @@ import br.com.quadrafacil.dto.*;
 import br.com.quadrafacil.entity.Cliente;
 import br.com.quadrafacil.repository.ClienteRepository;
 import java.util.List;
-import java.util.UUID;
+import java.util.ArrayList;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -22,10 +22,13 @@ public class ClienteService {
         return ClienteResponse.de(repository.save(new Cliente(request.nome(), request.email())));
     }
     public List<ClienteResponse> listar() {
-        return repository.findAll(Sort.by("nome").and(Sort.by("id")))
-            .stream().map(ClienteResponse::de).toList();
+        List<ClienteResponse> resposta = new ArrayList<>();
+        for (Cliente item : repository.findAll(Sort.by("nome", "id"))) {
+            resposta.add(ClienteResponse.de(item));
+        }
+        return resposta;
     }
-    public ClienteResponse consultar(UUID id) {
+    public ClienteResponse consultar(Long id) {
         return ClienteResponse.de(repository.findById(id).orElseThrow(() ->
             new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado.")));
     }

@@ -14,7 +14,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -35,7 +34,7 @@ class ClienteErrosApiTest {
         mvc.perform(get("/api/clientes")).andExpect(status().isOk()).andExpect(content().json("[]"));
         var result = mvc.perform(post("/api/clientes").contentType(MediaType.APPLICATION_JSON)
             .content("{\"nome\":\"  João  \",\"email\":\" joao@example.com \"}"))
-            .andExpect(status().isCreated()).andReturn();
+            .andExpect(status().isCreated()).andExpect(jsonPath("$.id").isNumber()).andReturn();
         String location = result.getResponse().getHeader("Location");
         assertNotNull(location);
         mvc.perform(get(location)).andExpect(status().isOk())
@@ -60,7 +59,7 @@ class ClienteErrosApiTest {
             .andExpect(jsonPath("$.campos[0].mensagem").value("O e-mail é obrigatório."));
     }
     @Test void ausenciasEFormatosUsamMesmoContrato() throws Exception {
-        for (String path : new String[]{"/api/clientes/"+UUID.randomUUID(), "/api/quadras/"+UUID.randomUUID(), "/api/nao-existe"}) {
+        for (String path : new String[]{"/api/clientes/"+Long.MAX_VALUE, "/api/quadras/"+Long.MAX_VALUE, "/api/nao-existe"}) {
             mvc.perform(get(path)).andExpect(status().isNotFound()).andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.campos").isArray());
         }

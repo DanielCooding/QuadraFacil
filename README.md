@@ -18,6 +18,8 @@ Esta pasta é uma entrega independente da primeira etapa do projeto. Não é nec
 
 ## Executar
 
+Para entender as camadas, os IDs numéricos e as anotações, consulte [Como explicar o código](docs/04-guia-do-codigo.md).
+
 Requisitos: Java 21 e Maven 3.9 ou superior.
 
 Abra o terminal nesta pasta e execute:
