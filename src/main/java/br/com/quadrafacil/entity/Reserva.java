@@ -3,8 +3,6 @@ package br.com.quadrafacil.entity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
-import br.com.quadrafacil.entity.Cliente;
-import br.com.quadrafacil.entity.Quadra;
 
 @Entity
 @Table(name = "reservas")
@@ -44,6 +42,8 @@ public class Reserva {
         this.valorTotal = valorTotal;
         this.estado = estado;
     }
+
+    public void cancelar() { this.estado = EstadoReserva.CANCELADA; }
 
     public Long getId() { return id; }
     public Cliente getCliente() { return cliente; }

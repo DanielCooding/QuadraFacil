@@ -3,6 +3,9 @@ package br.com.quadrafacil.controller;
 import br.com.quadrafacil.dto.*;
 import br.com.quadrafacil.service.QuadraService;
 import br.com.quadrafacil.service.FuncionamentoService;
+import br.com.quadrafacil.service.ReservaService;
+import java.time.LocalDate;
+import org.springframework.format.annotation.DateTimeFormat;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
@@ -15,9 +18,18 @@ public class QuadraController {
     private final QuadraService service;
     private final FuncionamentoService funcionamento;
 
-    public QuadraController(QuadraService service, FuncionamentoService funcionamento) {
+    private final ReservaService reservas;
+
+    public QuadraController(QuadraService service, FuncionamentoService funcionamento, ReservaService reservas) {
         this.service = service;
         this.funcionamento = funcionamento;
+        this.reservas = reservas;
+    }
+
+    @GetMapping("/{id}/agenda")
+    public AgendaResponse agenda(@PathVariable Long id,
+            @RequestParam @DateTimeFormat(pattern = "uuuu-MM-dd") LocalDate data) {
+        return reservas.agenda(id, data);
     }
 
     @GetMapping("/{id}/funcionamento")

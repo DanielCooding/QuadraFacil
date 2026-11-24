@@ -61,4 +61,4 @@ Esta etapa usa o **H2**, em memória, apenas com finalidade didática.
 - Início/fim da reserva usam `Instant`; DTO de entrada usa `OffsetDateTime` para exigir offset no JSON. O JDBC usa UTC. Funcionamento utiliza `LocalTime` e a agenda interpreta datas em Brasília.
 - Não há proteção de sobreposição pronta no schema H2 desta base. B10 implementará transação e bloqueio da quadra, com teste concorrente. O teste JPA atual só comprova o mapeamento e a persistência.
 
-Campos obrigatórios, formatos, políticas e exemplos HTTP estão em [03-contratos-http.md](03-contratos-http.md). Regras entre campos são responsabilidade dos Services futuros; anotações de DTO e colunas não substituem essas regras.
+Campos obrigatórios, formatos, políticas e exemplos HTTP estão em [03-contratos-http.md](03-contratos-http.md). Regras entre campos são responsabilidade dos Services; anotações de DTO e colunas não substituem essas regras.

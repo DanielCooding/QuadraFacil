@@ -33,7 +33,7 @@ As histórias abaixo estão ajustadas ao recorte da disciplina: não há login, 
 
 Como cliente, quero consultar as quadras e a agenda de uma data para escolher um intervalo adequado ao meu grupo.
 
-**Critérios de aceitação previstos:**
+**Critérios de aceitação:**
 
 - Consultar a agenda de uma quadra em uma data, com o funcionamento do dia e os intervalos já ocupados por reservas confirmadas.
 - Reservas canceladas não aparecem como ocupadas.
@@ -43,7 +43,7 @@ Como cliente, quero consultar as quadras e a agenda de uma data para escolher um
 
 Como cliente, quero reservar um intervalo livre e ver o valor calculado para garantir meu horário sem sobreposição com outra reserva.
 
-**Critérios de aceitação previstos:**
+**Critérios de aceitação:**
 
 - Informar um cliente e uma quadra existentes, e um intervalo dentro do funcionamento.
 - Calcular o valor no backend e salvar o preço contratado na reserva.
@@ -55,7 +55,7 @@ Como cliente, quero reservar um intervalo livre e ver o valor calculado para gar
 
 Como responsável pelas quadras, quero cadastrar quadras, definir o funcionamento e consultar as reservas por data para organizar o uso do espaço.
 
-**Critérios de aceitação previstos:**
+**Critérios de aceitação:**
 
 - Cadastrar nome, modalidade e preço por hora da quadra, e desativar uma quadra.
 - Definir dias e horários de funcionamento.
@@ -97,7 +97,7 @@ A aula pede um fluxo completo, 2 a 4 entidades e uma regra central: reservar sem
 - Uma reserva confirmada pode ser cancelada enquanto ainda não começou. O cancelamento preserva o histórico e libera o horário.
 - Os horários usam o fuso de Brasília (`America/Sao_Paulo`).
 
-> Duração, alinhamento de horários e cancelamento foram definidos em `docs/03-contratos-http.md` (B03). A implementação dessas regras continua nas tarefas B09–B11.
+> Duração, alinhamento de horários e cancelamento foram definidos em `docs/03-contratos-http.md` (B03). As tarefas B09–B11 implementam essas regras na API.
 
 **Tecnologias desta etapa:** Java 21, Spring Boot, Maven, Spring Web, Spring Data JPA, Bean Validation, H2 e JUnit. A API é testada com Bruno, Postman ou curl.
 
@@ -105,13 +105,13 @@ A aula pede um fluxo completo, 2 a 4 entidades e uma regra central: reservar sem
 
 ## 5. Estado das histórias e das issues de planejamento
 
-As issues #1 a #4 estão fechadas porque o **planejamento** foi concluído. Elas registram a definição das histórias e do MVP e **não indicam que a funcionalidade esteja implementada**. O desenvolvimento é acompanhado pelas issues B01 a B16 (#5 a #20).
+As issues #1 a #4 registram o planejamento das histórias e do MVP. O desenvolvimento é acompanhado pelas issues B01 a B16 (#5 a #20).
 
 | Registro | Conteúdo | Estado da funcionalidade |
 |---|---|---|
-| #1 — História 01 | Consultar disponibilidade | Planejada |
-| #2 — História 02 | Reservar sem conflito | Planejada |
-| #3 — História 03 | Administrar a agenda | Planejada |
-| #4 — MVP | Definição do escopo | Planejado |
+| #1 — História 01 | Consultar disponibilidade | Implementada na API |
+| #2 — História 02 | Reservar sem conflito | Implementada na API |
+| #3 — História 03 | Administrar a agenda | Implementada na API |
+| #4 — MVP | Definição do escopo | Fluxo principal implementado na API |
 
-O que existe hoje: entidades JPA, repositories, H2 e DTOs validados. O módulo de quadras já permite cadastro, consulta, edição, alteração de situação e configuração do funcionamento semanal pela API. Clientes já possuem cadastro, listagem e consulta por ID. Os fluxos HTTP de reservas seguem planejados. Os contratos estão em `docs/03-contratos-http.md`.
+Os endpoints de clientes, quadras, funcionamento, reservas e agenda estão documentados no [contrato HTTP](03-contratos-http.md).

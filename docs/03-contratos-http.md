@@ -1,15 +1,6 @@
 # Contratos HTTP do MVP — B03
 
-Vamos usar `/api` em todos os endpoints de negócio. Este documento define o que será implementado nas próximas tarefas; não significa que todos os endpoints abaixo já funcionam.
-
-## O que funciona agora
-
-| Endpoint | Situação |
-|---|---|
-| `GET /api/quadras` | Implementado com consulta ao H2 (B04), incluindo quadras inativas |
-| `GET /` | Página simples de apresentação |
-
-B04/B05 implementam também `POST /api/quadras`, `GET /api/quadras/{id}`, `PUT /api/quadras/{id}` e `PATCH /api/quadras/{id}/situacao`, conforme as seções abaixo. A resposta não inclui mais `proprietarioId`. B06 implementa `POST /api/clientes`, `GET /api/clientes` e `GET /api/clientes/{id}`. B07 fornece o tratamento global de erros. B08 implementa a consulta e a atualização do funcionamento semanal. Reservas e agenda permanecem planejadas.
+Os endpoints de negócio usam o prefixo `/api`. Consulte também a [lista de rotas no README](../README.md#endpoints).
 
 ## Convenções
 
@@ -72,7 +63,7 @@ Mantemos HorárioFuncionamento como quarta entidade: um registro por quadra e di
 - `diaSemana`: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`. Não repetir dia; no máximo sete itens.
 - Abertura e fechamento em `HH:mm`, em blocos de 30 minutos, entre `00:00` e `23:30`. Abertura menor que fechamento. Não há funcionamento que atravesse a meia-noite, múltiplos turnos ou feriados no MVP.
 - Alteração incompatível com reserva confirmada ainda não encerrada retorna 409 e mantém a semana anterior.
-- A criação de reservas (B09) deve usar o mesmo bloqueio de quadra da atualização de funcionamento (`QuadraRepository.buscarParaAtualizacao`) antes de consultar os horários, mantendo o bloqueio até confirmar a reserva na mesma transação.
+- Criar ou cancelar reservas, atualizar funcionamento, editar a quadra e alterar sua situação usam o bloqueio de quadra de `QuadraRepository.buscarParaAtualizacao`. A transação mantém o bloqueio até confirmar a operação.
 
 Entrada e resposta:
 ```json
@@ -112,14 +103,14 @@ Resposta:
 }
 ```
 
-Regras confirmadas para implementação:
+Regras de negócio:
 
 1. Cliente e quadra devem existir; quadra precisa estar ativa.
 2. Início futuro pelo relógio do servidor, anterior ao fim. Duração mínima de 60 minutos, em múltiplos de 30. Início e fim alinhados a meia hora, sem segundos/frações.
 3. Mesmo dia local e dentro do funcionamento. A própria janela diária limita a duração máxima.
 4. Calcular `precoHora × minutos / 60`, arredondando ao final para duas casas com `HALF_UP`. Salvar valor, sem cobrança online.
 5. Intervalo `[início, fim)`: sobreposição quando `existente.inicio < nova.fim && existente.fim > nova.inicio`. Apenas reservas CONFIRMADAS bloqueiam.
-6. B10 deve bloquear a quadra dentro da transação, consultar conflitos e inserir antes de liberar o bloqueio. Todas as operações que alterem disponibilidade deverão usar a mesma ordem de bloqueios. Somente consultar e depois inserir não basta.
+6. A criação bloqueia a quadra dentro da transação, consulta os conflitos e insere antes de liberar o bloqueio. O cancelamento também bloqueia a quadra antes de carregar a reserva para alteração.
 7. Cancelar CONFIRMADA somente se `agora < inicio`; no instante do início ou depois, retornar 409. Cancelar uma já CANCELADA retorna 200 com o mesmo registro, sem novo efeito, inclusive após o horário original.
 8. Cancelamento preserva histórico e libera o intervalo. Não há reembolso nem estados de pagamento.
 
@@ -137,11 +128,11 @@ Regras confirmadas para implementação:
 }
 ```
 
-Agenda retorna apenas CONFIRMADAS, ordenadas pelo início. Sem reservas: `reservas:[]`. Dia fechado: `funcionamento:null`. Intervalos livres são as partes do funcionamento não ocupadas; não precisamos gerar uma lista de slots. Reservas canceladas permanecem consultáveis pelo ID. Consultar a agenda não garante reserva; a validação definitiva ocorre ao criar.
+Agenda retorna apenas CONFIRMADAS, ordenadas pelo início. Sem reservas: `reservas:[]`. Dia fechado: `funcionamento:null`. Intervalos livres são as partes do funcionamento não ocupadas; não precisamos gerar uma lista de slots. Reservas canceladas permanecem consultáveis pelo ID. A validação definitiva de disponibilidade ocorre ao criar a reserva. A consulta atende às histórias [#1](https://github.com/DanielCooding/QuadraFacil/issues/1) e [#3](https://github.com/DanielCooding/QuadraFacil/issues/3).
 
-## Erros — B07 e Services futuros
+## Erros
 
-Formato implementado globalmente em B07 (a regra de conflito de reservas ainda será implementada em B10):
+Formato implementado pelo tratamento global:
 ```json
 {"status":409,"mensagem":"Já existe uma reserva para essa quadra no intervalo informado.","campos":[]}
 ```
@@ -156,4 +147,4 @@ Formato implementado globalmente em B07 (a regra de conflito de reservas ainda s
 | 404 | Cliente, quadra ou reserva inexistente |
 | 409 | Sobreposição; quadra inativa ao reservar; cancelamento após início; mudança de funcionamento que invalida reserva |
 
-Nunca incluir stack trace, SQL ou credenciais. Erros inesperados retornam 500 com mensagem genérica. Validar campos antes de resolver referências; depois verificar existência, estado da quadra, regras de intervalo e conflito. Os testes futuros devem verificar tanto HTTP quanto ausência de gravações parciais.
+Nunca incluir stack trace, SQL ou credenciais. Erros inesperados retornam 500 com mensagem genérica. Validar campos antes de resolver referências; depois verificar existência, estado da quadra, regras de intervalo e conflito. Os testes de integração verificam os códigos HTTP e a gravação no H2.
