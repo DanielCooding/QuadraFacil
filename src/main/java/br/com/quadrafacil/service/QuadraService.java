@@ -32,18 +32,22 @@ public class QuadraService {
     }
     @Transactional
     public QuadraResponse editar(Long id, QuadraRequest request) {
-        Quadra quadra = encontrar(id);
+        Quadra quadra = bloquear(id);
         quadra.atualizar(request.nome(), request.modalidade(), request.precoHora());
         return QuadraResponse.de(quadra);
     }
     @Transactional
     public QuadraResponse alterarSituacao(Long id, boolean ativa) {
-        Quadra quadra = encontrar(id);
+        Quadra quadra = bloquear(id);
         quadra.alterarSituacao(ativa);
         return QuadraResponse.de(quadra);
     }
     Quadra encontrar(Long id) {
         return repository.findById(id).orElseThrow(QuadraService::quadraNaoEncontrada);
+    }
+
+    Quadra bloquear(Long id) {
+        return repository.buscarParaAtualizacao(id).orElseThrow(QuadraService::quadraNaoEncontrada);
     }
 
     static ResponseStatusException quadraNaoEncontrada() {

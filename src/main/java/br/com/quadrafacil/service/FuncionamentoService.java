@@ -6,7 +6,6 @@ import br.com.quadrafacil.entity.EstadoReserva;
 import br.com.quadrafacil.entity.HorarioFuncionamento;
 import br.com.quadrafacil.entity.Quadra;
 import br.com.quadrafacil.repository.HorarioFuncionamentoRepository;
-import br.com.quadrafacil.repository.QuadraRepository;
 import br.com.quadrafacil.repository.ReservaRepository;
 import java.time.DayOfWeek;
 import java.time.Instant;
@@ -25,18 +24,16 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 @Transactional(readOnly = true)
 public class FuncionamentoService {
-    private static final ZoneId BRASILIA = ZoneId.of("America/Sao_Paulo");
+    static final ZoneId BRASILIA = ZoneId.of("America/Sao_Paulo");
     private static final Pattern HORARIO_VALIDO = Pattern.compile("(?:[01][0-9]|2[0-3]):(?:00|30)");
 
     private final QuadraService quadraService;
-    private final QuadraRepository quadras;
     private final HorarioFuncionamentoRepository horarios;
     private final ReservaRepository reservas;
 
-    public FuncionamentoService(QuadraService quadraService, QuadraRepository quadras,
+    public FuncionamentoService(QuadraService quadraService,
             HorarioFuncionamentoRepository horarios, ReservaRepository reservas) {
         this.quadraService = quadraService;
-        this.quadras = quadras;
         this.horarios = horarios;
         this.reservas = reservas;
     }
@@ -50,7 +47,7 @@ public class FuncionamentoService {
 
     @Transactional
     public List<FuncionamentoResponse> substituir(Long id, List<FuncionamentoRequest> semana) {
-        Quadra quadra = quadras.buscarParaAtualizacao(id).orElseThrow(QuadraService::quadraNaoEncontrada);
+        Quadra quadra = quadraService.bloquear(id);
         var proposta = new EnumMap<DayOfWeek, HorarioFuncionamento>(DayOfWeek.class);
         for (FuncionamentoRequest item : semana) {
             if (item == null || item.diaSemana() == null) {
