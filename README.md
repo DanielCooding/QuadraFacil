@@ -1,138 +1,55 @@
-# QuadraFácil — entrega inicial
+# QuadraFácil
 
-Projeto da disciplina Oficina Prática Backend I (UNIESP), de Daniel Lucas, João Nobrega e Dante Cavalcante.
-
-Esta pasta é uma entrega independente da primeira etapa do projeto. Não é necessário entregar o sistema completo da ideia original.
-
-## Itens da entrega
-
-| Item solicitado | Onde encontrar |
-|---|---|
-| 1. Grupo + problema | `docs/01-proposta.md`, seção 1 |
-| 2. Uma persona | `docs/01-proposta.md`, seção 2 |
-| 3. Três histórias priorizadas | `docs/01-proposta.md`, seção 3 |
-| 4. MVP definido | `docs/01-proposta.md`, seção 4 |
-| 5. Modelo inicial | `docs/02-modelo-inicial.md` e classes no pacote `entity` |
-| 6. Spring Boot rodando | Aplicação executável e endpoints abaixo |
-| 7. README | Este arquivo |
+API REST para cadastrar quadras esportivas e reservar horários sem conflitos. Projeto acadêmico da disciplina Oficina Prática Backend I (UNIESP), de Daniel Lucas, João Nobrega e Dante Cavalcante.
 
 ## Executar
 
-Para entender as camadas, os IDs numéricos e as anotações, consulte [Como explicar o código](docs/04-guia-do-codigo.md).
-
-Requisitos: Java 21 e Maven 3.9 ou superior.
-
-Abra o terminal nesta pasta e execute:
+Com JDK 21 e Maven 3.9 ou superior, rode na raiz do repositório:
 
 ```sh
 mvn spring-boot:run
 ```
 
-Abra http://localhost:8080. A página inicial informa o nome e a etapa do projeto.
-
-Endpoints:
-
-- `GET /` — apresentação simples do serviço.
-- `GET /api/quadras` — consulta as quadras cadastradas no H2, incluindo inativas.
-
-Para usar outra porta: `mvn spring-boot:run -Dspring-boot.run.arguments=--server.port=8081`.
-
-Para verificar e gerar um executável:
+A aplicação sobe em [localhost:8080](http://localhost:8080/). Para mudar a porta, use `mvn spring-boot:run -Dspring-boot.run.arguments=--server.port=8081`.
 
 ```sh
 mvn test
-mvn package
+mvn verify
 java -jar target/quadrafacil-inicial-0.1.0.jar
 ```
 
-## Escopo desta etapa
+`mvn test` usa o banco H2 em memória `quadrafacil-testes`, isolado do banco usado ao executar a aplicação. `mvn verify` também gera o JAR executável.
 
-**Objetivo do MVP:** cadastrar clientes e quadras e reservar um horário sem conflitos. A regra central é que uma mesma quadra não pode ter duas reservas confirmadas com horários sobrepostos.
-
-**O que está implementado hoje:** o serviço Spring Boot, quatro entidades JPA, repositories, DTOs com Bean Validation e H2 configurado. Os endpoints de quadras usam o H2 para cadastro, consulta, edição, alteração de situação e configuração do funcionamento semanal. Clientes já possuem cadastro e consultas.
-
-**Próximas etapas do trabalho acadêmico:** criação e cancelamento de reservas, consulta de agenda e ampliação dos testes automatizados. O desenvolvimento é acompanhado pelas issues B01 a B16 (#5 a #20).
-
-As issues #1 a #4 estão fechadas porque o planejamento foi concluído. Elas registram as histórias e a definição do MVP, **não funcionalidades implementadas**.
-
-**Tecnologias desta etapa:** Java 21, Spring Boot, Maven, Spring Web, Spring Data JPA, Bean Validation, H2 e JUnit. O H2 é um banco em memória usado **apenas com finalidade didática**; os dados não são mantidos ao reiniciar. A API será testada com Bruno, Postman ou curl.
-
-
-## Estrutura
-
-```text
-docs/                       proposta, modelo e evidências
-src/main/java/              aplicação, controller e modelo inicial
-src/main/resources/         configuração e página inicial
-src/test/java/              teste HTTP de inicialização
-pom.xml                     dependências e build
-```
-
-## Base preparada em B02 e contratos de B03
-
-Os contratos completos estão em [docs/03-contratos-http.md](docs/03-contratos-http.md). Eles distinguem o que funciona hoje dos endpoints planejados. O modelo atualizado está em [docs/02-modelo-inicial.md](docs/02-modelo-inicial.md).
-
-```text
-br/com/quadrafacil/
-  controller/                   endpoints de clientes e quadras
-  service/                      regras e transações de clientes e quadras
-  dto/                          dados de entrada e saída da API
-  entity/                       entidades JPA e estado da reserva
-  repository/                   acesso ao banco de dados
-  exception/                    tratamento global dos erros da API
-  QuadraFacilApplication.java    inicialização do Spring Boot
-```
-
-O código está organizado por camadas: todos os Controllers ficam em `controller`, os Services em `service` e os DTOs em `dto`. Clientes, quadras e funcionamento usam Services transacionais e Repositories para persistência, com DTOs nas respostas da API.
-
-### Banco didático
-
-A URL local é `jdbc:h2:mem:quadrafacil`, usuário `sa` e senha vazia apenas para esse banco em memória. Nenhum serviço externo ou arquivo `.env` é necessário. `create-drop` cria o schema na inicialização e o remove no encerramento. Os dados não sobrevivem ao reinício; `DB_CLOSE_DELAY=-1` só mantém o banco vivo entre conexões da mesma execução. O console H2 está desabilitado.
-
-Os testes usam outro banco, `quadrafacil-testes`, e as transações do teste JPA são revertidas. Execute `mvn verify` para compilar, testar e gerar o JAR. A suíte verifica status HTTP, cadastro e funcionamento de quadras, proteção do funcionamento diante de reservas confirmadas, validação dos DTOs e gravação/leitura dos relacionamentos no H2.
-
-`target/`, arquivos de IDE, bancos locais, logs e segredos estão no `.gitignore`. Maven 3.9+ deve estar instalado; o projeto ainda não fornece Maven Wrapper.
-
-## Quadras — B04 e B05
-
-O banco começa vazio. A lista fixa foi removida e `proprietarioId` não faz mais parte da resposta, conforme B03.
+## Endpoints
 
 | Método | Caminho | Resultado |
 |---|---|---|
-| POST | `/api/quadras` | 201 e Location da quadra criada |
-| GET | `/api/quadras` | 200, lista do banco, inclusive inativas |
-| GET | `/api/quadras/{id}` | 200 ou 404 |
-| PUT | `/api/quadras/{id}` | 200, atualiza nome/modalidade/preço sem alterar situação |
-| PATCH | `/api/quadras/{id}/situacao` | 200, desativa ou reativa sem excluir dados |
+| GET | `/` e `/api/status` | Apresentação e status |
+| POST, GET | `/api/clientes` | Cadastra ou lista clientes |
+| GET | `/api/clientes/{id}` | Consulta cliente |
+| POST, GET | `/api/quadras` | Cadastra ou lista quadras |
+| GET, PUT | `/api/quadras/{id}` | Consulta ou edita quadra |
+| PATCH | `/api/quadras/{id}/situacao` | Ativa ou desativa quadra |
+| GET, PUT | `/api/quadras/{id}/funcionamento` | Consulta ou substitui o funcionamento semanal |
+| POST | `/api/reservas` | Calcula o valor e confirma a reserva |
+| GET | `/api/reservas/{id}` | Consulta a reserva, inclusive cancelada |
+| POST | `/api/reservas/{id}/cancelamento` | Cancela e libera o horário |
+| GET | `/api/quadras/{id}/agenda?data=AAAA-MM-DD` | Lista reservas confirmadas do dia |
 
-No PowerShell, com a aplicação rodando:
+Envie início e fim em ISO 8601 com offset. A API retorna os instantes em UTC e interpreta o funcionamento e a data da agenda em `America/Sao_Paulo`. O [contrato HTTP](docs/03-contratos-http.md) detalha entradas, respostas e erros.
 
-```powershell
-$quadra = Invoke-RestMethod -Method Post -Uri http://localhost:8080/api/quadras -ContentType 'application/json' -Body '{"nome":"Central","modalidade":"Futebol","precoHora":120.00}'
-Invoke-RestMethod http://localhost:8080/api/quadras
-Invoke-RestMethod -Method Put -Uri "http://localhost:8080/api/quadras/$($quadra.id)" -ContentType 'application/json' -Body '{"nome":"Central Coberta","modalidade":"Futebol","precoHora":150.00}'
-Invoke-RestMethod -Method Patch -Uri "http://localhost:8080/api/quadras/$($quadra.id)/situacao" -ContentType 'application/json' -Body '{"ativa":false}'
-```
+## Demonstrar o MVP
 
-Nome e modalidade são obrigatórios e têm espaços externos removidos. Preço deve ser positivo e ter até duas casas. Campos extras são rejeitados. Erros usam o tratamento global de B07: JSON com `status`, `mensagem` e `campos`.
+Importe [QuadraFacil.postman_collection.json](postman/QuadraFacil.postman_collection.json) no Postman e execute a coleção inteira em ordem pelo Collection Runner. A variável `baseUrl` aponta para `http://localhost:8080`. A coleção cria dados fictícios, escolhe uma data futura e reutiliza os IDs retornados pela API.
 
-Desativar não apaga reservas nem altera seus valores. A rejeição de novas reservas em quadras inativas será implementada/testada com o endpoint de reservas em B09; ele ainda não existe.
+O [roteiro da demonstração](docs/05-demonstracao.md) apresenta a sequência e as falas da equipe. O [registro de contribuições](docs/06-contribuicoes.md) reúne as evidências da entrega.
 
-## Clientes e erros — B06 e B07
+## Escopo acadêmico
 
-| Método | Caminho | Resultado |
-|---|---|---|
-| POST | `/api/clientes` | 201, cliente salvo e header Location |
-| GET | `/api/clientes` | 200, lista ordenada por nome e ID |
-| GET | `/api/clientes/{id}` | 200 ou 404 |
+O H2 em memória começa vazio. A aplicação grava dados durante a execução e os perde ao reiniciar. O console local está em `/h2-console` e usa a configuração de desenvolvimento em `src/main/resources/application.yml`. Execute apenas em ambiente local com dados fictícios.
 
-```powershell
-$cliente = Invoke-RestMethod -Method Post -Uri http://localhost:8080/api/clientes -ContentType 'application/json' -Body '{"nome":"Joao","email":"joao@example.com"}'
-Invoke-RestMethod "http://localhost:8080/api/clientes/$($cliente.id)"
-```
+O MVP tem quatro entidades: cliente, quadra, reserva e horário de funcionamento. Um dia aceita uma janela de funcionamento, sem atravessar a meia-noite. O cancelamento preserva o histórico e só é permitido antes do início da reserva. Login, controle de acesso por usuário, pagamentos e armazenamento durável estão fora do escopo.
 
-Nome e e-mail são obrigatórios, com limites de 100 e 254 caracteres. Removemos espaços nas extremidades antes de validar. E-mail precisa ter formato válido, mas não é único nem representa uma conta de login.
-
-`exception/ApiExceptionHandler` atende todos os controllers: 400 para entrada inválida, 404 para ausência, 409 para conflito de negócio/integridade e 500 com mensagem genérica para falha inesperada. Erros HTTP como 405 e 415 preservam seus códigos. Nenhuma resposta inclui stack trace, SQL ou o valor rejeitado. As mensagens de `ResponseStatusException` devem ser constantes controladas pelo Service, nunca mensagens de exceções internas.
-
-DTOs usam Bean Validation e mensagens em português. O corpo segue o contrato `status`, `mensagem`, `campos`. Novos módulos devem usar esse handler, sem duplicar tratamentos locais. Os testes de conflito e falha inesperada usam controllers exclusivos de teste; não existem rotas artificiais de erro no JAR de produção. A prevenção de sobreposição continua em B10.
+- [Proposta, persona e histórias](docs/01-proposta.md)
+- [Modelo de dados](docs/02-modelo-inicial.md)
+- [Guia das camadas do código](docs/04-guia-do-codigo.md)
