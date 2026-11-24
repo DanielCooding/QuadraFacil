@@ -2,6 +2,7 @@ package br.com.quadrafacil.controller;
 
 import br.com.quadrafacil.dto.*;
 import br.com.quadrafacil.service.QuadraService;
+import br.com.quadrafacil.service.FuncionamentoService;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
@@ -12,7 +13,23 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/quadras")
 public class QuadraController {
     private final QuadraService service;
-    public QuadraController(QuadraService service) { this.service = service; }
+    private final FuncionamentoService funcionamento;
+
+    public QuadraController(QuadraService service, FuncionamentoService funcionamento) {
+        this.service = service;
+        this.funcionamento = funcionamento;
+    }
+
+    @GetMapping("/{id}/funcionamento")
+    public List<FuncionamentoResponse> consultarFuncionamento(@PathVariable Long id) {
+        return funcionamento.consultar(id);
+    }
+
+    @PutMapping("/{id}/funcionamento")
+    public List<FuncionamentoResponse> substituirFuncionamento(@PathVariable Long id,
+            @RequestBody List<FuncionamentoRequest> semana) {
+        return funcionamento.substituir(id, semana);
+    }
 
     @GetMapping public List<QuadraResponse> listar() { return service.listar(); }
     @GetMapping("/{id}") public QuadraResponse consultar(@PathVariable Long id) { return service.consultar(id); }

@@ -95,4 +95,69 @@ class QuadraApiTest {
         assertTrue(json.readTree(error.body()).has("mensagem"));
         assertFalse(error.body().contains("stackTrace"));
     }
+
+    @Test void consultaESubstituiSemanaCompletaEmOrdem() throws Exception {
+        String path = criar() + "/funcionamento";
+        String segunda = horario("MONDAY", "00:00", "23:30");
+        String domingo = horario("SUNDAY", "08:00", "22:00");
+        assertEquals("[]", request("GET", path, null).body());
+        var resposta = request("PUT", path, "[" + domingo + "," + segunda + "]");
+        assertEquals(200, resposta.statusCode(), resposta.body());
+        assertEquals(json.readTree("[" + segunda + "," + domingo + "]"), json.readTree(resposta.body()));
+        assertEquals(resposta.body(), request("GET", path, null).body());
+        String segundaAtualizada = horario("MONDAY", "08:00", "18:30");
+        assertEquals(200, request("PUT", path, "[" + segundaAtualizada + "]").statusCode());
+        assertEquals(json.readTree("[" + segundaAtualizada + "]"), json.readTree(request("GET", path, null).body()));
+        assertEquals(1, horarios.count());
+        assertEquals(200, request("PUT", path, "[]").statusCode());
+        assertEquals(0, horarios.count());
+    }
+
+    @Test void rejeitaSemanaInvalidaSemAlterarConfiguracao() throws Exception {
+        String path = criar() + "/funcionamento";
+        String segunda = horario("MONDAY", "08:00", "22:00");
+        assertEquals(200, request("PUT", path, "[" + segunda + "]").statusCode());
+        for (String semana : new String[]{"null", "{}", "[null]", "[{}]", "[" + segunda + "," + segunda + "]",
+                "[" + segunda.replace("\"MONDAY\"", "1") + "]",
+                "[" + segunda.replace("MONDAY", "SEGUNDA") + "]",
+                "[" + segunda.replace("08:00", "8:00") + "]",
+                "[" + segunda.replace("08:00", "08:00:00") + "]",
+                "[" + segunda.replace("08:00", "08:15") + "]",
+                "[" + segunda.replace("22:00", "24:00") + "]",
+                "[" + segunda.replace("22:00", "08:00") + "]",
+                "[" + segunda.replace("22:00", "07:30") + "]",
+                "[" + segunda.replace("}", ",\"extra\":true}") + "]"}) {
+            assertEquals(400, request("PUT", path, semana).statusCode(), semana);
+        }
+        assertEquals(json.readTree("[" + segunda + "]"), json.readTree(request("GET", path, null).body()));
+        String inexistente = "/api/quadras/" + Long.MAX_VALUE + "/funcionamento";
+        assertEquals(404, request("GET", inexistente, null).statusCode());
+        assertEquals(404, request("PUT", inexistente, "[]").statusCode());
+    }
+
+    @Test void protegeReservasConfirmadasAindaNaoEncerradasNoFusoDeBrasilia() throws Exception {
+        String quadraPath = criar();
+        String path = quadraPath + "/funcionamento";
+        String ampla = horario("MONDAY", "08:00", "23:30");
+        assertEquals(200, request("PUT", path, "[" + ampla + "]").statusCode());
+        var quadra = quadras.findById(Long.valueOf(quadraPath.substring(quadraPath.lastIndexOf('/') + 1))).orElseThrow();
+        var cliente = clientes.save(new Cliente("Ana", "ana@example.com"));
+        reservas.save(new Reserva(cliente, quadra, Instant.parse("2099-01-06T00:00:00Z"),
+            Instant.parse("2099-01-06T01:00:00Z"), new BigDecimal("120.00"), EstadoReserva.CONFIRMADA));
+        reservas.save(new Reserva(cliente, quadra, Instant.parse("2099-01-06T15:00:00Z"),
+            Instant.parse("2099-01-06T16:00:00Z"), new BigDecimal("120.00"), EstadoReserva.CANCELADA));
+        reservas.save(new Reserva(cliente, quadra, Instant.parse("2020-01-07T15:00:00Z"),
+            Instant.parse("2020-01-07T16:00:00Z"), new BigDecimal("120.00"), EstadoReserva.CONFIRMADA));
+
+        assertEquals(409, request("PUT", path, "[]").statusCode());
+        assertEquals(409, request("PUT", path, "[" + horario("MONDAY", "21:30", "22:30") + "]").statusCode());
+        assertEquals(json.readTree("[" + ampla + "]"), json.readTree(request("GET", path, null).body()));
+        assertEquals(200, request("PUT", path, "[" + horario("MONDAY", "21:00", "22:00") + "]").statusCode());
+    }
+
+    private String horario(String dia, String abertura, String fechamento) {
+        return """
+            {"diaSemana":"%s","abertura":"%s","fechamento":"%s"}
+            """.formatted(dia, abertura, fechamento);
+    }
 }
