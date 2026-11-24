@@ -114,4 +114,4 @@ As issues #1 a #4 estão fechadas porque o **planejamento** foi concluído. Elas
 | #3 — História 03 | Administrar a agenda | Planejada |
 | #4 — MVP | Definição do escopo | Planejado |
 
-O que existe hoje: entidades JPA, repositories, H2 e DTOs validados. O módulo de quadras já permite cadastro, consulta, edição e alteração de situação pela API. Clientes já possuem cadastro, listagem e consulta por ID. Funcionamento e reservas ainda não têm seus fluxos HTTP implementados. Os contratos estão em `docs/03-contratos-http.md`.
+O que existe hoje: entidades JPA, repositories, H2 e DTOs validados. O módulo de quadras já permite cadastro, consulta, edição, alteração de situação e configuração do funcionamento semanal pela API. Clientes já possuem cadastro, listagem e consulta por ID. Os fluxos HTTP de reservas seguem planejados. Os contratos estão em `docs/03-contratos-http.md`.

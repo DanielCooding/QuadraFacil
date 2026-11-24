@@ -42,8 +42,11 @@ public class QuadraService {
         quadra.alterarSituacao(ativa);
         return QuadraResponse.de(quadra);
     }
-    private Quadra encontrar(Long id) {
-        return repository.findById(id).orElseThrow(() ->
-            new ResponseStatusException(HttpStatus.NOT_FOUND, "Quadra não encontrada."));
+    Quadra encontrar(Long id) {
+        return repository.findById(id).orElseThrow(QuadraService::quadraNaoEncontrada);
+    }
+
+    static ResponseStatusException quadraNaoEncontrada() {
+        return new ResponseStatusException(HttpStatus.NOT_FOUND, "Quadra não encontrada.");
     }
 }

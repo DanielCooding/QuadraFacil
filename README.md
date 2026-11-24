@@ -49,9 +49,9 @@ java -jar target/quadrafacil-inicial-0.1.0.jar
 
 **Objetivo do MVP:** cadastrar clientes e quadras e reservar um horário sem conflitos. A regra central é que uma mesma quadra não pode ter duas reservas confirmadas com horários sobrepostos.
 
-**O que está implementado hoje:** o serviço Spring Boot, quatro entidades JPA, repositories, DTOs com Bean Validation e H2 configurado. Os endpoints de quadras usam o H2 para cadastro, consulta, edição e alteração de situação. Clientes já possuem cadastro e consultas. Reservas e funcionamento ainda serão implementados.
+**O que está implementado hoje:** o serviço Spring Boot, quatro entidades JPA, repositories, DTOs com Bean Validation e H2 configurado. Os endpoints de quadras usam o H2 para cadastro, consulta, edição, alteração de situação e configuração do funcionamento semanal. Clientes já possuem cadastro e consultas.
 
-**Próximas etapas do trabalho acadêmico:** funcionamento, criação e cancelamento de reservas, consulta de agenda e ampliação dos testes automatizados. O desenvolvimento é acompanhado pelas issues B01 a B16 (#5 a #20).
+**Próximas etapas do trabalho acadêmico:** criação e cancelamento de reservas, consulta de agenda e ampliação dos testes automatizados. O desenvolvimento é acompanhado pelas issues B01 a B16 (#5 a #20).
 
 As issues #1 a #4 estão fechadas porque o planejamento foi concluído. Elas registram as histórias e a definição do MVP, **não funcionalidades implementadas**.
 
@@ -83,13 +83,13 @@ br/com/quadrafacil/
   QuadraFacilApplication.java    inicialização do Spring Boot
 ```
 
-O código está organizado por camadas: todos os Controllers ficam em `controller`, os Services em `service` e os DTOs em `dto`. Clientes e quadras já possuem Controller, Service transacional e Repository; entidades JPA não são retornadas diretamente pela API. Os fluxos de reservas e funcionamento serão adicionados nas mesmas pastas nas próximas etapas.
+O código está organizado por camadas: todos os Controllers ficam em `controller`, os Services em `service` e os DTOs em `dto`. Clientes, quadras e funcionamento usam Services transacionais e Repositories para persistência, com DTOs nas respostas da API.
 
 ### Banco didático
 
 A URL local é `jdbc:h2:mem:quadrafacil`, usuário `sa` e senha vazia apenas para esse banco em memória. Nenhum serviço externo ou arquivo `.env` é necessário. `create-drop` cria o schema na inicialização e o remove no encerramento. Os dados não sobrevivem ao reinício; `DB_CLOSE_DELAY=-1` só mantém o banco vivo entre conexões da mesma execução. O console H2 está desabilitado.
 
-Os testes usam outro banco, `quadrafacil-testes`, e as transações do teste JPA são revertidas. Execute `mvn verify` para compilar, testar e gerar o JAR. A suíte verifica status HTTP, fluxo HTTP de quadras, validação dos DTOs e gravação/leitura dos relacionamentos no H2. Ela ainda não comprova regras de reservas, que serão implementadas e testadas em B09–B13.
+Os testes usam outro banco, `quadrafacil-testes`, e as transações do teste JPA são revertidas. Execute `mvn verify` para compilar, testar e gerar o JAR. A suíte verifica status HTTP, cadastro e funcionamento de quadras, proteção do funcionamento diante de reservas confirmadas, validação dos DTOs e gravação/leitura dos relacionamentos no H2.
 
 `target/`, arquivos de IDE, bancos locais, logs e segredos estão no `.gitignore`. Maven 3.9+ deve estar instalado; o projeto ainda não fornece Maven Wrapper.
 

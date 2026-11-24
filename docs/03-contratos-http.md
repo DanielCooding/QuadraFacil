@@ -9,7 +9,7 @@ Vamos usar `/api` em todos os endpoints de negócio. Este documento define o que
 | `GET /api/quadras` | Implementado com consulta ao H2 (B04), incluindo quadras inativas |
 | `GET /` | Página simples de apresentação |
 
-B04/B05 implementam também `POST /api/quadras`, `GET /api/quadras/{id}`, `PUT /api/quadras/{id}` e `PATCH /api/quadras/{id}/situacao`, conforme as seções abaixo. A resposta não inclui mais `proprietarioId`. B06 implementa `POST /api/clientes`, `GET /api/clientes` e `GET /api/clientes/{id}`. Funcionamento, reservas e agenda permanecem planejados. B07 fornece tratamento global de erros, usado por clientes, quadras e pelos próximos controllers.
+B04/B05 implementam também `POST /api/quadras`, `GET /api/quadras/{id}`, `PUT /api/quadras/{id}` e `PATCH /api/quadras/{id}/situacao`, conforme as seções abaixo. A resposta não inclui mais `proprietarioId`. B06 implementa `POST /api/clientes`, `GET /api/clientes` e `GET /api/clientes/{id}`. B07 fornece o tratamento global de erros. B08 implementa a consulta e a atualização do funcionamento semanal. Reservas e agenda permanecem planejadas.
 
 ## Convenções
 
@@ -72,6 +72,7 @@ Mantemos HorárioFuncionamento como quarta entidade: um registro por quadra e di
 - `diaSemana`: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`. Não repetir dia; no máximo sete itens.
 - Abertura e fechamento em `HH:mm`, em blocos de 30 minutos, entre `00:00` e `23:30`. Abertura menor que fechamento. Não há funcionamento que atravesse a meia-noite, múltiplos turnos ou feriados no MVP.
 - Alteração incompatível com reserva confirmada ainda não encerrada retorna 409 e mantém a semana anterior.
+- A criação de reservas (B09) deve usar o mesmo bloqueio de quadra da atualização de funcionamento (`QuadraRepository.buscarParaAtualizacao`) antes de consultar os horários, mantendo o bloqueio até confirmar a reserva na mesma transação.
 
 Entrada e resposta:
 ```json
