@@ -1,0 +1,93 @@
+﻿TESTE DE RESERVA DE DUAS QUADRAS NO MESMO HORÁRIO
+Postman / Insomnia
+
+Inicie a aplicação com mvn spring-boot:run. Crie uma requisição por bloco.
+Em cada POST e PUT, selecione Body > JSON. O cabeçalho deve ser Content-Type: application/json.
+Troque os valores entre < > pelos IDs retornados nos cadastros.
+
+1. Cadastrar cliente — esperado 201 Created
+POST http://localhost:8080/api/clientes
+
+{
+  "nome": "Ana Teste",
+  "email": "ana@example.com"
+}
+
+Anote o id da resposta como <clienteId>.
+
+2. Criar a primeira quadra — esperado 201 Created
+POST http://localhost:8080/api/quadras
+
+{
+  "nome": "Quadra Central",
+  "modalidade": "Futebol",
+  "precoHora": 120.00
+}
+
+Anote o id da resposta como <quadra1Id>.
+
+3. Criar a segunda quadra — esperado 201 Created
+POST http://localhost:8080/api/quadras
+
+{
+  "nome": "Quadra Sul",
+  "modalidade": "Futebol",
+  "precoHora": 100.00
+}
+
+Anote o id da resposta como <quadra2Id>.
+
+4. Configurar a primeira quadra — esperado 200 OK
+PUT http://localhost:8080/api/quadras/<quadra1Id>/funcionamento
+
+[
+  {
+    "diaSemana": "MONDAY",
+    "abertura": "08:00",
+    "fechamento": "22:00"
+  }
+]
+
+5. Configurar a segunda quadra — esperado 200 OK
+PUT http://localhost:8080/api/quadras/<quadra2Id>/funcionamento
+
+[
+  {
+    "diaSemana": "MONDAY",
+    "abertura": "08:00",
+    "fechamento": "22:00"
+  }
+]
+
+6. Reservar a primeira quadra — esperado 201 Created
+Disponível após B09. O exemplo usa segunda-feira, 07/01/2030, no fuso de Brasília.
+Se precisar mudar a data, escolha uma segunda-feira futura e use a mesma data nos três pedidos.
+
+POST http://localhost:8080/api/reservas
+
+{
+  "clienteId": <clienteId>,
+  "quadraId": <quadra1Id>,
+  "inicio": "2030-01-07T18:00:00-03:00",
+  "fim": "2030-01-07T19:30:00-03:00"
+}
+
+7. Reservar a segunda quadra no mesmo horário — esperado 201 Created após B09
+POST http://localhost:8080/api/reservas
+
+{
+  "clienteId": <clienteId>,
+  "quadraId": <quadra2Id>,
+  "inicio": "2030-01-07T18:00:00-03:00",
+  "fim": "2030-01-07T19:30:00-03:00"
+}
+
+8. Repetir a reserva da primeira quadra — esperado 409 Conflict após B10
+POST http://localhost:8080/api/reservas
+
+{
+  "clienteId": <clienteId>,
+  "quadraId": <quadra1Id>,
+  "inicio": "2030-01-07T18:00:00-03:00",
+  "fim": "2030-01-07T19:30:00-03:00"
+}
