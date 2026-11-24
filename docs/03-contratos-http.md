@@ -6,7 +6,6 @@ Vamos usar `/api` em todos os endpoints de negócio. Este documento define o que
 
 | Endpoint | Situação |
 |---|---|
-| `GET /api/status` | Implementado: status da aplicação |
 | `GET /api/quadras` | Implementado com consulta ao H2 (B04), incluindo quadras inativas |
 | `GET /` | Página simples de apresentação |
 

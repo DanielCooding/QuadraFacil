@@ -33,7 +33,6 @@ Abra http://localhost:8080. A página inicial informa o nome e a etapa do projet
 Endpoints:
 
 - `GET /` — apresentação simples do serviço.
-- `GET /api/status` — confirma que a aplicação está em execução.
 - `GET /api/quadras` — consulta as quadras cadastradas no H2, incluindo inativas.
 
 Para usar outra porta: `mvn spring-boot:run -Dspring-boot.run.arguments=--server.port=8081`.
@@ -50,15 +49,14 @@ java -jar target/quadrafacil-inicial-0.1.0.jar
 
 **Objetivo do MVP:** cadastrar clientes e quadras e reservar um horário sem conflitos. A regra central é que uma mesma quadra não pode ter duas reservas confirmadas com horários sobrepostos.
 
-**O que está implementado hoje:** o serviço Spring Boot, quatro entidades JPA, repositories, DTOs com Bean Validation e H2 configurado. `GET /api/status` continua funcionando e os endpoints de quadras já usam o H2 para cadastro, consulta, edição e alteração de situação. Clientes já possuem cadastro e consultas. Reservas e funcionamento ainda serão implementados.
+**O que está implementado hoje:** o serviço Spring Boot, quatro entidades JPA, repositories, DTOs com Bean Validation e H2 configurado. Os endpoints de quadras usam o H2 para cadastro, consulta, edição e alteração de situação. Clientes já possuem cadastro e consultas. Reservas e funcionamento ainda serão implementados.
 
-**Próximas etapas:** funcionamento, criação e cancelamento de reservas, consulta de agenda e ampliação dos testes automatizados. O desenvolvimento é acompanhado pelas issues B01 a B16 (#5 a #20).
+**Próximas etapas do trabalho acadêmico:** funcionamento, criação e cancelamento de reservas, consulta de agenda e ampliação dos testes automatizados. O desenvolvimento é acompanhado pelas issues B01 a B16 (#5 a #20).
 
 As issues #1 a #4 estão fechadas porque o planejamento foi concluído. Elas registram as histórias e a definição do MVP, **não funcionalidades implementadas**.
 
 **Tecnologias desta etapa:** Java 21, Spring Boot, Maven, Spring Web, Spring Data JPA, Bean Validation, H2 e JUnit. O H2 é um banco em memória usado **apenas com finalidade didática**; os dados não são mantidos ao reiniciar. A API será testada com Bruno, Postman ou curl.
 
-**Fora desta etapa:** login e perfis de acesso, pagamento online, frontend completo, integrações externas, Docker e microsserviços. A ideia original também previa PostgreSQL/Supabase, código de acesso por reserva e publicação na Vercel/Railway; esses itens são **requisitos futuros** e estão listados em `docs/01-proposta.md`, seção 6.
 
 ## Estrutura
 
@@ -76,7 +74,7 @@ Os contratos completos estão em [docs/03-contratos-http.md](docs/03-contratos-h
 
 ```text
 br/com/quadrafacil/
-  controller/                   endpoints de apresentação, clientes e quadras
+  controller/                   endpoints de clientes e quadras
   service/                      regras e transações de clientes e quadras
   dto/                          dados de entrada e saída da API
   entity/                       entidades JPA e estado da reserva

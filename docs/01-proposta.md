@@ -64,6 +64,8 @@ Como responsável pelas quadras, quero cadastrar quadras, definir o funcionament
 
 ## 4. MVP definido (recorte da disciplina)
 
+A aula pede um fluxo completo, 2 a 4 entidades e uma regra central: reservar sem sobreposição. Funcionamento semanal, preço e duração mínima são decisões do grupo para esse fluxo, não exigências literais do professor. O backlog acompanha apenas a entrega acadêmica, sem plano de expansão comercial.
+
 **Objetivo do MVP:** permitir cadastrar clientes e quadras e **reservar um horário sem conflitos**.
 
 **Regra central:** uma mesma quadra não pode ter duas reservas confirmadas com horários sobrepostos.
@@ -88,7 +90,6 @@ Como responsável pelas quadras, quero cadastrar quadras, definir o funcionament
 - Cancelamento com preservação do histórico e liberação do intervalo.
 - Validações e respostas de erro padronizadas, e testes automatizados com H2.
 
-**Fora desta etapa:** login e perfis de acesso, pagamento online, frontend completo, integrações externas, Docker e microsserviços. A lista de requisitos futuros está na seção 6.
 
 **Política simplificada do MVP:**
 
@@ -114,17 +115,3 @@ As issues #1 a #4 estão fechadas porque o **planejamento** foi concluído. Elas
 | #4 — MVP | Definição do escopo | Planejado |
 
 O que existe hoje: entidades JPA, repositories, H2 e DTOs validados. O módulo de quadras já permite cadastro, consulta, edição e alteração de situação pela API. Clientes já possuem cadastro, listagem e consulta por ID. Funcionamento e reservas ainda não têm seus fluxos HTTP implementados. Os contratos estão em `docs/03-contratos-http.md`.
-
-## 6. Requisitos futuros (fora da entrega acadêmica)
-
-Fazem parte da ideia original do projeto, mas **não serão implementados nesta etapa**:
-
-| Recurso | Observação |
-|---|---|
-| Autenticação e perfis (cliente e proprietário) | A etapa atual não tem login |
-| PostgreSQL/Supabase | Substitui o H2 em uma versão real; a restrição de exclusão de intervalos no banco entra aqui |
-| Pagamento online (Mercado Pago), prazo e reembolso | Hoje a reserva aceita já fica confirmada |
-| Código de acesso por reserva | Depende de definição futura |
-| Frontend HTML, CSS e JavaScript | A demonstração desta etapa é feita pela API |
-| Publicação na Vercel/Railway | Não é requisito para executar esta entrega |
-| Fotos, relatórios avançados e notificações | Evolução do projeto completo |

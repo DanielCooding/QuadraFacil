@@ -1,6 +1,6 @@
 # Modelo inicial do MVP
 
-Em B02/B03 substituímos os records por quatro entidades JPA e repositories. `Usuario` foi substituído por `Cliente`; login e perfis não fazem parte do MVP. A persistência dos relacionamentos é testada no H2, mas os fluxos de cadastro e reserva ainda serão implementados.
+Em B02/B03 substituímos os records por quatro entidades JPA e repositories. `Usuario` foi substituído por `Cliente`; login e perfis não fazem parte do MVP. A persistência dos relacionamentos é testada no H2, e os cadastros de clientes e quadras estão implementados. O fluxo de reservas ainda será implementado.
 
 ## Entidades
 
@@ -48,9 +48,7 @@ Quadra   1 ── N HorárioFuncionamento
 
 ## Banco de dados
 
-Esta etapa usa o **H2**, em memória, apenas com finalidade didática. Em uma versão futura, PostgreSQL/Supabase poderá substituí-lo, com restrição de exclusão para intervalos de reservas confirmadas no próprio banco.
-
-Pagamentos, credenciais de acesso e dispositivos não fazem parte deste recorte e, por isso, não aparecem neste modelo.
+Esta etapa usa o **H2**, em memória, apenas com finalidade didática.
 
 ## Decisões do mapeamento JPA
 
