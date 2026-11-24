@@ -1,0 +1,359 @@
+{
+  "info": {
+    "name": "QuadraFácil — demonstração do MVP",
+    "description": "Execute com o Collection Runner, em ordem, a partir da primeira requisição. Cada rodada usa novos IDs e escolhe uma data futura.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "dataReserva",
+      "value": ""
+    },
+    {
+      "key": "diaSemana",
+      "value": ""
+    },
+    {
+      "key": "clienteId",
+      "value": ""
+    },
+    {
+      "key": "quadraId",
+      "value": ""
+    },
+    {
+      "key": "reservaId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Cadastrar cliente fictício",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/clientes",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Marina Demo\",\n  \"email\": \"marina@example.com\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// O exemplo usa UTC-03:00 nos horários enviados à API.",
+              "const diaLocal = new Date(Date.now() + 7 * 86400000 - 3 * 3600000);",
+              "const dias = [\"SUNDAY\", \"MONDAY\", \"TUESDAY\", \"WEDNESDAY\", \"THURSDAY\", \"FRIDAY\", \"SATURDAY\"];",
+              "pm.collectionVariables.set(\"dataReserva\", diaLocal.toISOString().slice(0, 10));",
+              "pm.collectionVariables.set(\"diaSemana\", dias[diaLocal.getUTCDay()]);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set(\"clienteId\", pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Consultar cliente cadastrado",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/clientes/{{clienteId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Cliente persistido\", () => pm.expect(pm.response.json().nome).to.eql(\"Marina Demo\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cadastrar quadra",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/quadras",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Quadra Demo\",\n  \"modalidade\": \"Futebol\",\n  \"precoHora\": 120\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set(\"quadraId\", pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Configurar funcionamento",
+      "request": {
+        "method": "PUT",
+        "url": "{{baseUrl}}/api/quadras/{{quadraId}}/funcionamento",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "[\n  {\n    \"diaSemana\": \"{{diaSemana}}\",\n    \"abertura\": \"08:00\",\n    \"fechamento\": \"22:00\"\n  }\n]"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Consultar agenda vazia",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/quadras/{{quadraId}}/agenda?data={{dataReserva}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Nenhuma reserva\", () => pm.expect(pm.response.json().reservas).to.be.empty);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Confirmar 90 minutos",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/reservas",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"clienteId\": {{clienteId}},\n  \"quadraId\": {{quadraId}},\n  \"inicio\": \"{{dataReserva}}T18:00:00-03:00\",\n  \"fim\": \"{{dataReserva}}T19:30:00-03:00\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set(\"reservaId\", pm.response.json().id);",
+              "pm.test(\"Confirmada por R$ 180\", () => {",
+              "    const reserva = pm.response.json();",
+              "    pm.expect(reserva.estado).to.eql(\"CONFIRMADA\");",
+              "    pm.expect(reserva.valorTotal).to.eql(180);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Consultar reserva persistida",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/reservas/{{reservaId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Reserva original\", () => pm.expect(pm.response.json().id).to.eql(Number(pm.collectionVariables.get(\"reservaId\"))));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Recusar sobreposição",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/reservas",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"clienteId\": {{clienteId}},\n  \"quadraId\": {{quadraId}},\n  \"inicio\": \"{{dataReserva}}T19:00:00-03:00\",\n  \"fim\": \"{{dataReserva}}T20:00:00-03:00\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 409\", () => pm.response.to.have.status(409));",
+              "pm.test(\"Conflito de horário\", () => pm.expect(pm.response.json().mensagem).to.include(\"Já existe uma reserva\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Consultar agenda com uma reserva",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/quadras/{{quadraId}}/agenda?data={{dataReserva}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Somente a original foi confirmada\", () => pm.expect(pm.response.json().reservas).to.have.lengthOf(1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cancelar a reserva",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/reservas/{{reservaId}}/cancelamento"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Cancelada\", () => pm.expect(pm.response.json().estado).to.eql(\"CANCELADA\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Conferir que o horário foi liberado",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/quadras/{{quadraId}}/agenda?data={{dataReserva}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Agenda livre\", () => pm.expect(pm.response.json().reservas).to.be.empty);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reservar de novo o mesmo intervalo",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/reservas",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"clienteId\": {{clienteId}},\n  \"quadraId\": {{quadraId}},\n  \"inicio\": \"{{dataReserva}}T18:00:00-03:00\",\n  \"fim\": \"{{dataReserva}}T19:30:00-03:00\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "pm.test(\"Nova reserva tem outro ID\", () => pm.expect(pm.response.json().id).to.not.eql(Number(pm.collectionVariables.get(\"reservaId\"))));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Consultar histórico do cancelamento",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/reservas/{{reservaId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Reserva original preservada\", () => pm.expect(pm.response.json().estado).to.eql(\"CANCELADA\"));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
